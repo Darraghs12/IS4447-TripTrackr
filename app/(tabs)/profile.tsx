@@ -2,11 +2,12 @@ import PrimaryButton from '@/components/ui/primary-button';
 import ScreenHeader from '@/components/ui/screen-header';
 import { Colors } from '@/constants/theme';
 import { db } from '@/db/client';
+import { exportActivitiesCSV } from '@/db/export';
 import { users as usersTable } from '@/db/schema';
 import { eq } from 'drizzle-orm';
 import { useRouter } from 'expo-router';
 import { useContext } from 'react';
-import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Category, Target, TripContext } from '../_layout';
 
@@ -16,7 +17,7 @@ export default function ProfileScreen() {
 
   if (!context) return null;
 
-  const { categories, targets, currentUser, setCurrentUser, colorScheme, toggleTheme } = context;
+  const { trips, activities, categories, targets, currentUser, setCurrentUser, colorScheme, toggleTheme } = context;
   const textColor = colorScheme === 'dark' ? '#ECEDEE' : '#111827';
   const subtitleColor = colorScheme === 'dark' ? '#9BA1A6' : '#6B7280';
 
@@ -30,6 +31,14 @@ export default function ProfileScreen() {
     await db.delete(usersTable).where(eq(usersTable.id, currentUser.id));
     setCurrentUser(null);
     router.replace('/login');
+  };
+
+  const handleExport = async () => {
+    try {
+      await exportActivitiesCSV(activities, trips, categories);
+    } catch (e) {
+      Alert.alert('Export failed', 'Could not export activities. Please try again.');
+    }
   };
 
   return (
@@ -132,10 +141,17 @@ export default function ProfileScreen() {
             <Text style={[styles.emailText, { color: subtitleColor }]}>{currentUser.email}</Text>
           ) : null}
           <PrimaryButton
-            label="Log Out"
+            label="Export Activities"
             variant="secondary"
-            onPress={handleLogout}
+            onPress={handleExport}
           />
+          <View style={styles.dangerButton}>
+            <PrimaryButton
+              label="Log Out"
+              variant="secondary"
+              onPress={handleLogout}
+            />
+          </View>
           <View style={styles.dangerButton}>
             <PrimaryButton
               label="Delete Account"
