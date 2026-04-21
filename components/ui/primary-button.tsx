@@ -5,6 +5,7 @@ type Props = {
   onPress: () => void;
   compact?: boolean;
   variant?: 'primary' | 'secondary' | 'danger';
+  disabled?: boolean;
 };
 
 export default function PrimaryButton({
@@ -12,18 +13,20 @@ export default function PrimaryButton({
   onPress,
   compact = false,
   variant = 'primary',
+  disabled = false,
 }: Props) {
   return (
     <Pressable
       accessibilityLabel={label}
       accessibilityRole="button"
-      onPress={onPress}
+      onPress={disabled ? undefined : onPress}
       style={({ pressed }) => [
         styles.button,
         variant === 'secondary' ? styles.secondary : null,
         variant === 'danger' ? styles.danger : null,
         compact ? styles.compact : null,
-        pressed ? styles.pressed : null,
+        pressed && !disabled ? styles.pressed : null,
+        disabled ? styles.disabled : null,
       ]}
     >
       <Text
@@ -66,6 +69,9 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.85,
+  },
+  disabled: {
+    opacity: 0.5,
   },
   label: {
     color: '#FFFFFF',

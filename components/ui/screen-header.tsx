@@ -3,13 +3,19 @@ import { StyleSheet, Text, View } from 'react-native';
 type Props = {
   title: string;
   subtitle?: string;
+  textColor?: string;
+  subtitleColor?: string;
 };
 
-export default function ScreenHeader({ title, subtitle }: Props) {
+export default function ScreenHeader({ title, subtitle, textColor, subtitleColor }: Props) {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
-      {subtitle ? <Text style={styles.subtitle}>{subtitle}</Text> : null}
+      <Text style={[styles.title, textColor ? { color: textColor } : null]}>{title}</Text>
+      {subtitle ? (
+        <Text style={[styles.subtitle, subtitleColor ? { color: subtitleColor } : null]}>
+          {subtitle}
+        </Text>
+      ) : null}
     </View>
   );
 }

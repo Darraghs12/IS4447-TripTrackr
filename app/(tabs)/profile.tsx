@@ -1,8 +1,12 @@
 import PrimaryButton from '@/components/ui/primary-button';
 import ScreenHeader from '@/components/ui/screen-header';
+import { Colors } from '@/constants/theme';
+import { db } from '@/db/client';
+import { users as usersTable } from '@/db/schema';
+import { eq } from 'drizzle-orm';
 import { useRouter } from 'expo-router';
 import { useContext } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Category, Target, TripContext } from '../_layout';
 
@@ -12,25 +16,44 @@ export default function ProfileScreen() {
 
   if (!context) return null;
 
-  const { categories, targets } = context;
+  const { categories, targets, currentUser, setCurrentUser, colorScheme, toggleTheme } = context;
+  const textColor = colorScheme === 'dark' ? '#ECEDEE' : '#111827';
+  const subtitleColor = colorScheme === 'dark' ? '#9BA1A6' : '#6B7280';
+
+  const handleLogout = () => {
+    setCurrentUser(null);
+    router.replace('/login');
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!currentUser) return;
+    await db.delete(usersTable).where(eq(usersTable.id, currentUser.id));
+    setCurrentUser(null);
+    router.replace('/login');
+  };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: Colors[colorScheme].background }]}>
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <ScreenHeader title="Profile" subtitle="Categories and targets" />
+        <ScreenHeader
+          title="Profile"
+          subtitle="Categories and targets"
+          textColor={textColor}
+          subtitleColor={subtitleColor}
+        />
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Categories</Text>
+          <Text style={[styles.sectionTitle, { color: textColor }]}>Categories</Text>
           <PrimaryButton
             label="Add Category"
             onPress={() => router.push({ pathname: '/add-category' })}
           />
           <View style={styles.list}>
             {categories.length === 0 ? (
-              <Text style={styles.emptyText}>No categories yet</Text>
+              <Text style={[styles.emptyText, { color: subtitleColor }]}>No categories yet</Text>
             ) : (
               categories.map((category: Category) => (
                 <Pressable
@@ -57,14 +80,14 @@ export default function ProfileScreen() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Targets</Text>
+          <Text style={[styles.sectionTitle, { color: textColor }]}>Targets</Text>
           <PrimaryButton
             label="Add Target"
             onPress={() => router.push({ pathname: '/add-target' })}
           />
           <View style={styles.list}>
             {targets.length === 0 ? (
-              <Text style={styles.emptyText}>No targets yet</Text>
+              <Text style={[styles.emptyText, { color: subtitleColor }]}>No targets yet</Text>
             ) : (
               targets.map((target: Target) => (
                 <Pressable
@@ -87,6 +110,38 @@ export default function ProfileScreen() {
                 </Pressable>
               ))
             )}
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: textColor }]}>Appearance</Text>
+          <View style={styles.themeRow}>
+            <Text style={[styles.themeLabel, { color: textColor }]}>Dark Mode</Text>
+            <Switch
+              value={colorScheme === 'dark'}
+              onValueChange={toggleTheme}
+              trackColor={{ false: '#CBD5E1', true: '#0F766E' }}
+              thumbColor="#FFFFFF"
+            />
+          </View>
+        </View>
+
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: textColor }]}>Account</Text>
+          {currentUser ? (
+            <Text style={[styles.emailText, { color: subtitleColor }]}>{currentUser.email}</Text>
+          ) : null}
+          <PrimaryButton
+            label="Log Out"
+            variant="secondary"
+            onPress={handleLogout}
+          />
+          <View style={styles.dangerButton}>
+            <PrimaryButton
+              label="Delete Account"
+              variant="danger"
+              onPress={handleDeleteAccount}
+            />
           </View>
         </View>
       </ScrollView>
@@ -144,5 +199,23 @@ const styles = StyleSheet.create({
     fontSize: 16,
     paddingTop: 8,
     textAlign: 'center',
+  },
+  emailText: {
+    color: '#475569',
+    fontSize: 14,
+    marginBottom: 12,
+  },
+  dangerButton: {
+    marginTop: 10,
+  },
+  themeRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  themeLabel: {
+    color: '#111827',
+    fontSize: 15,
+    fontWeight: '500',
   },
 });

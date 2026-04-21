@@ -1,6 +1,7 @@
 import TripCard from '@/components/TripCard';
 import PrimaryButton from '@/components/ui/primary-button';
 import ScreenHeader from '@/components/ui/screen-header';
+import { Colors } from '@/constants/theme';
 import { useRouter } from 'expo-router';
 import { useContext, useState } from 'react';
 import {
@@ -22,7 +23,9 @@ export default function TripsScreen() {
 
   if (!context) return null;
 
-  const { trips, categories } = context;
+  const { trips, categories, colorScheme } = context;
+  const textColor = colorScheme === 'dark' ? '#ECEDEE' : '#111827';
+  const subtitleColor = colorScheme === 'dark' ? '#9BA1A6' : '#6B7280';
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const categoryOptions = ['All', ...categories.map((c: Category) => c.name)];
 
@@ -40,10 +43,12 @@ export default function TripsScreen() {
   });
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: Colors[colorScheme].background }]}>
       <ScreenHeader
         title="Trips"
         subtitle={`${trips.length} trips planned`}
+        textColor={textColor}
+        subtitleColor={subtitleColor}
       />
 
       <PrimaryButton
@@ -91,7 +96,7 @@ export default function TripsScreen() {
         showsVerticalScrollIndicator={false}
       >
         {filteredTrips.length === 0 ? (
-          <Text style={styles.emptyText}>No trips found</Text>
+          <Text style={[styles.emptyText, { color: subtitleColor }]}>No trips found</Text>
         ) : (
           filteredTrips.map((trip: Trip) => (
             <TripCard key={trip.id} trip={trip} />
