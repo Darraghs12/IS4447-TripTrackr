@@ -4,6 +4,7 @@ export const categories = sqliteTable('categories', {
   id: integer('id').primaryKey({ autoIncrement: true }),
   name: text('name').notNull(),
   colour: text('colour').notNull(),
+  icon: text('icon').notNull().default('map-outline'),
 });
 
 export const trips = sqliteTable('trips', {

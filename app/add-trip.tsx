@@ -54,11 +54,12 @@ export default function AddTrip() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <BackButton />
+        <BackButton colorScheme={colorScheme} />
         <ScreenHeader title="Add Trip" subtitle="Plan a new adventure." />
         <View style={styles.form}>
           <FormField label="Name" value={name} onChangeText={setName} />
-          <FormField label="Destination" value={destination} onChangeText={setDestination} />
+          <FormField label="Destination" value={destination} onChangeText={setDestination} placeholder="e.g. Paris, Tokyo, New York" />
+          <Text style={styles.hint}>Enter a city name for weather to work correctly.</Text>
 
           {/* Start Date */}
           <View style={styles.datePickerWrapper}>
@@ -74,12 +75,13 @@ export default function AddTrip() {
               </Text>
             </Pressable>
             {showStartPicker && (
-              <>
+              <View style={{ backgroundColor: colorScheme === 'dark' ? '#1E2022' : '#F0F0F0', borderRadius: 12, padding: 8, marginTop: 4 }}>
                 <DateTimePicker
                   value={startDate ? new Date(startDate) : new Date()}
                   mode="date"
                   display={Platform.OS === 'ios' ? 'inline' : 'default'}
-                  textColor={colorScheme === 'dark' ? '#ECEDEE' : '#111827'}
+                  textColor={colorScheme === 'dark' ? '#FFFFFF' : '#000000'}
+                  accentColor="#0F766E"
                   onChange={(event, selectedDate) => {
                     if (Platform.OS === 'android') setShowStartPicker(false);
                     if (selectedDate) setStartDate(new Date(selectedDate).toISOString().split('T')[0]);
@@ -88,7 +90,7 @@ export default function AddTrip() {
                 {Platform.OS === 'ios' && (
                   <PrimaryButton label="Done" onPress={() => setShowStartPicker(false)} />
                 )}
-              </>
+              </View>
             )}
           </View>
 
@@ -106,12 +108,13 @@ export default function AddTrip() {
               </Text>
             </Pressable>
             {showEndPicker && (
-              <>
+              <View style={{ backgroundColor: colorScheme === 'dark' ? '#1E2022' : '#F0F0F0', borderRadius: 12, padding: 8, marginTop: 4 }}>
                 <DateTimePicker
                   value={endDate ? new Date(endDate) : new Date()}
                   mode="date"
                   display={Platform.OS === 'ios' ? 'inline' : 'default'}
-                  textColor={colorScheme === 'dark' ? '#ECEDEE' : '#111827'}
+                  textColor={colorScheme === 'dark' ? '#FFFFFF' : '#000000'}
+                  accentColor="#0F766E"
                   onChange={(event, selectedDate) => {
                     if (Platform.OS === 'android') setShowEndPicker(false);
                     if (selectedDate) setEndDate(new Date(selectedDate).toISOString().split('T')[0]);
@@ -120,7 +123,7 @@ export default function AddTrip() {
                 {Platform.OS === 'ios' && (
                   <PrimaryButton label="Done" onPress={() => setShowEndPicker(false)} />
                 )}
-              </>
+              </View>
             )}
           </View>
 
@@ -236,5 +239,11 @@ const styles = StyleSheet.create({
     color: '#DC2626',
     fontSize: 13,
     marginTop: 4,
+  },
+  hint: {
+    color: '#6B7280',
+    fontSize: 12,
+    marginTop: 4,
+    marginBottom: 8,
   },
 });

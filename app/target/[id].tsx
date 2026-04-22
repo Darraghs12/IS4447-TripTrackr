@@ -39,7 +39,7 @@ export default function TargetDetail() {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: bgColor }]}>
-      <BackButton />
+      <BackButton colorScheme={colorScheme} />
       <ScreenHeader title={`${target.type} target`} subtitle="Goal details" />
       <View style={styles.tags}>
         <InfoTag label="Type" value={target.type} />

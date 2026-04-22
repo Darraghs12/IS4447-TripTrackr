@@ -157,7 +157,7 @@ export default function TripDetail() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <BackButton />
+        <BackButton colorScheme={colorScheme} />
         <ScreenHeader title={trip.name} subtitle={trip.destination} textColor={textColor} subtitleColor={subtitleColor} />
         <View style={styles.tags}>
           <InfoTag label="From" value={formatDate(trip.startDate)} />

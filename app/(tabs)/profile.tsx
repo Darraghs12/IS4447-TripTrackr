@@ -1,9 +1,9 @@
 import PrimaryButton from '@/components/ui/primary-button';
 import ScreenHeader from '@/components/ui/screen-header';
-import { Colors } from '@/constants/theme';
 import { db } from '@/db/client';
 import { exportActivitiesCSV } from '@/db/export';
 import { users as usersTable } from '@/db/schema';
+import { Ionicons } from '@expo/vector-icons';
 import { eq } from 'drizzle-orm';
 import { useRouter } from 'expo-router';
 import { useContext } from 'react';
@@ -18,6 +18,7 @@ export default function ProfileScreen() {
   if (!context) return null;
 
   const { trips, activities, categories, targets, currentUser, setCurrentUser, colorScheme, toggleTheme } = context;
+  const bgColor = colorScheme === 'dark' ? '#151718' : '#F8FAFC';
   const textColor = colorScheme === 'dark' ? '#ECEDEE' : '#111827';
   const subtitleColor = colorScheme === 'dark' ? '#9BA1A6' : '#6B7280';
 
@@ -57,7 +58,7 @@ export default function ProfileScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: Colors[colorScheme].background }]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: bgColor }]}>
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
@@ -97,6 +98,11 @@ export default function ProfileScreen() {
                 >
                   <View style={styles.rowContent}>
                     <View style={[styles.colourDot, { backgroundColor: category.colour }]} />
+                    <Ionicons
+                      name={(category.icon ?? 'map-outline') as any}
+                      size={18}
+                      color={category.colour}
+                    />
                     <Text style={styles.rowName}>{category.name}</Text>
                   </View>
                 </Pressable>

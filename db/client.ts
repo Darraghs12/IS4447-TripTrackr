@@ -7,9 +7,17 @@ sqlite.execSync(`
   CREATE TABLE IF NOT EXISTS categories (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL,
-    colour TEXT NOT NULL
+    colour TEXT NOT NULL,
+    icon TEXT NOT NULL DEFAULT 'map-outline'
   );
 `);
+
+// Migrate existing databases that predate the icon column
+try {
+  sqlite.execSync(`ALTER TABLE categories ADD COLUMN icon TEXT NOT NULL DEFAULT 'map-outline';`);
+} catch {
+  // Column already exists — safe to ignore
+}
 
 sqlite.execSync(`
   CREATE TABLE IF NOT EXISTS trips (

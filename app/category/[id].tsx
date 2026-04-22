@@ -37,7 +37,7 @@ export default function CategoryDetail() {
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: bgColor }]}>
-      <BackButton />
+      <BackButton colorScheme={colorScheme} />
       <ScreenHeader title={category.name} subtitle="Category details" />
       <View style={styles.tags}>
         <InfoTag label="Name" value={category.name} />

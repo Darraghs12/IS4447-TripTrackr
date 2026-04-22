@@ -39,7 +39,7 @@ export default function AddTarget() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <BackButton />
+        <BackButton colorScheme={colorScheme} />
         <ScreenHeader
           title="Add Target"
           subtitle="Set a goal for number of activities per week or month"

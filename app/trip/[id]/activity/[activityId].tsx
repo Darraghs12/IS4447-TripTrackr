@@ -1,5 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useContext } from 'react';
+import BackButton from '@/components/ui/back-button';
 import InfoTag from '@/components/ui/info-tag';
 import PrimaryButton from '@/components/ui/primary-button';
 import ScreenHeader from '@/components/ui/screen-header';
@@ -17,7 +18,8 @@ export default function ActivityDetail() {
 
   if (!context) return null;
 
-  const { activities, setActivities, categories } = context;
+  const { activities, setActivities, categories, colorScheme } = context;
+  const bgColor = colorScheme === 'dark' ? '#151718' : '#F8FAFC';
 
   const activity = activities.find((a: Activity) => a.id === Number(activityId));
 
@@ -36,7 +38,8 @@ export default function ActivityDetail() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: bgColor }]}>
+      <BackButton colorScheme={colorScheme} />
       <ScreenHeader title={activity.name} subtitle="Activity details" />
       <View style={styles.tags}>
         <InfoTag label="Date" value={activity.date} />

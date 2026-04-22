@@ -1,14 +1,16 @@
-import { Trip } from '@/app/_layout';
+import { Category, Trip } from '@/app/_layout';
 import InfoTag from '@/components/ui/info-tag';
 import { formatDate } from '@/db/utils';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 type Props = {
   trip: Trip;
+  category?: Category;
 };
 
-export default function TripCard({ trip }: Props) {
+export default function TripCard({ trip, category }: Props) {
   const router = useRouter();
   const openDetails = () =>
     router.push({ pathname: '/trip/[id]', params: { id: trip.id.toString() } });
@@ -24,8 +26,20 @@ export default function TripCard({ trip }: Props) {
         pressed ? styles.cardPressed : null,
       ]}
     >
-      <View>
+      <View style={styles.header}>
         <Text style={styles.name}>{trip.name}</Text>
+        {category ? (
+          <View style={styles.categoryBadge}>
+            <Ionicons
+              name={(category.icon ?? 'map-outline') as any}
+              size={14}
+              color={category.colour}
+            />
+            <Text style={[styles.categoryName, { color: category.colour }]}>
+              {category.name}
+            </Text>
+          </View>
+        ) : null}
       </View>
 
       <View style={styles.tags}>
@@ -49,10 +63,25 @@ const styles = StyleSheet.create({
   cardPressed: {
     opacity: 0.88,
   },
+  header: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
   name: {
     color: '#111827',
     fontSize: 18,
     fontWeight: '700',
+    flex: 1,
+  },
+  categoryBadge: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 4,
+  },
+  categoryName: {
+    fontSize: 12,
+    fontWeight: '600',
   },
   tags: {
     flexDirection: 'row',

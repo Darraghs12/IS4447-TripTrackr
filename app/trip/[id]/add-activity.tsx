@@ -61,7 +61,7 @@ export default function AddActivity() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <BackButton />
+        <BackButton colorScheme={colorScheme} />
         <ScreenHeader title="Add Activity" subtitle="Log a new activity." />
         <View style={styles.form}>
           <FormField label="Name" value={name} onChangeText={setName} />
@@ -79,12 +79,13 @@ export default function AddActivity() {
               </Text>
             </Pressable>
             {showDatePicker && (
-              <>
+              <View style={{ backgroundColor: colorScheme === 'dark' ? '#1E2022' : '#F0F0F0', borderRadius: 12, padding: 8, marginTop: 4 }}>
                 <DateTimePicker
                   value={date ? new Date(date) : new Date()}
                   mode="date"
                   display={Platform.OS === 'ios' ? 'inline' : 'default'}
-                  textColor={colorScheme === 'dark' ? '#ECEDEE' : '#111827'}
+                  textColor={colorScheme === 'dark' ? '#FFFFFF' : '#000000'}
+                  accentColor="#0F766E"
                   onChange={(event, selectedDate) => {
                     if (Platform.OS === 'android') setShowDatePicker(false);
                     if (selectedDate) setDate(new Date(selectedDate).toISOString().split('T')[0]);
@@ -93,7 +94,7 @@ export default function AddActivity() {
                 {Platform.OS === 'ios' && (
                   <PrimaryButton label="Done" onPress={() => setShowDatePicker(false)} />
                 )}
-              </>
+              </View>
             )}
           </View>
 

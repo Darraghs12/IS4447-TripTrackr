@@ -9,10 +9,10 @@ export async function seedIfEmpty() {
   }
 
   await db.insert(categories).values([
-    { name: 'Outdoor', colour: '#0F766E' },
-    { name: 'Culture', colour: '#1D4ED8' },
-    { name: 'Sightseeing', colour: '#7C3AED' },
-    { name: 'Food', colour: '#B45309' },
+    { name: 'Outdoor', colour: '#0F766E', icon: 'walk-outline' },
+    { name: 'Culture', colour: '#1D4ED8', icon: 'camera-outline' },
+    { name: 'Sightseeing', colour: '#7C3AED', icon: 'map-outline' },
+    { name: 'Food', colour: '#B45309', icon: 'restaurant-outline' },
   ]);
 
   await db.insert(trips).values([

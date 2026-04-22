@@ -4,6 +4,7 @@ import PrimaryButton from '@/components/ui/primary-button';
 import ScreenHeader from '@/components/ui/screen-header';
 import { db } from '@/db/client';
 import { categories as categoriesTable } from '@/db/schema';
+import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useContext, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
@@ -12,18 +13,25 @@ import { TripContext } from './_layout';
 
 const COLOURS = ['#0F766E', '#1D4ED8', '#DC2626', '#D97706', '#7C3AED', '#059669', '#DB2777', '#0891B2'];
 
+const ICONS = [
+  'map-outline', 'restaurant-outline', 'walk-outline', 'camera-outline',
+  'bed-outline', 'airplane-outline', 'car-outline', 'boat-outline',
+  'bicycle-outline', 'wine-outline', 'football-outline', 'musical-notes-outline',
+] as const;
+
 export default function AddCategory() {
   const router = useRouter();
   const context = useContext(TripContext);
   const [name, setName] = useState('');
   const [colour, setColour] = useState('');
+  const [icon, setIcon] = useState('map-outline');
 
   if (!context) return null;
   const { setCategories, colorScheme } = context;
   const bgColor = colorScheme === 'dark' ? '#151718' : '#F8FAFC';
 
   const saveCategory = async () => {
-    await db.insert(categoriesTable).values({ name, colour });
+    await db.insert(categoriesTable).values({ name, colour, icon });
 
     const rows = await db.select().from(categoriesTable);
     setCategories(rows);
@@ -36,7 +44,7 @@ export default function AddCategory() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <BackButton />
+        <BackButton colorScheme={colorScheme} />
         <ScreenHeader title="Add Category" subtitle="Create a new category." />
         <View style={styles.form}>
           <FormField label="Name" value={name} onChangeText={setName} />
@@ -56,6 +64,30 @@ export default function AddCategory() {
                   ]}
                 />
               ))}
+            </View>
+          </View>
+
+          <View style={styles.iconWrapper}>
+            <Text style={styles.iconLabel}>Icon</Text>
+            <View style={styles.iconRow}>
+              {ICONS.map((ic) => {
+                const isSelected = icon === ic;
+                return (
+                  <Pressable
+                    key={ic}
+                    accessibilityLabel={`Select icon ${ic}`}
+                    accessibilityRole="button"
+                    onPress={() => setIcon(ic)}
+                    style={[styles.iconButton, isSelected && styles.iconButtonSelected]}
+                  >
+                    <Ionicons
+                      name={ic as any}
+                      size={24}
+                      color={isSelected ? '#0F766E' : '#0F172A'}
+                    />
+                  </Pressable>
+                );
+              })}
             </View>
           </View>
         </View>
@@ -99,6 +131,35 @@ const styles = StyleSheet.create({
   },
   swatchSelected: {
     borderColor: '#0F172A',
+    borderWidth: 2,
+  },
+  iconWrapper: {
+    marginBottom: 12,
+  },
+  iconLabel: {
+    color: '#334155',
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 6,
+  },
+  iconRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  iconButton: {
+    alignItems: 'center',
+    backgroundColor: '#F8FAFC',
+    borderColor: '#E5E7EB',
+    borderRadius: 10,
+    borderWidth: 1,
+    height: 44,
+    justifyContent: 'center',
+    width: 44,
+  },
+  iconButtonSelected: {
+    backgroundColor: '#F0FDF9',
+    borderColor: '#0F766E',
     borderWidth: 2,
   },
 });

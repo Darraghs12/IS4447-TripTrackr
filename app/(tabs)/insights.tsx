@@ -1,5 +1,4 @@
 import ScreenHeader from '@/components/ui/screen-header';
-import { Colors } from '@/constants/theme';
 import { calculateStreak } from '@/db/streaks';
 import { useContext, useState } from 'react';
 import {
@@ -26,6 +25,7 @@ export default function InsightsScreen() {
   if (!context) return null;
 
   const { trips, activities, categories, targets, colorScheme } = context;
+  const bgColor = colorScheme === 'dark' ? '#151718' : '#F8FAFC';
   const textColor = colorScheme === 'dark' ? '#ECEDEE' : '#111827';
   const subtitleColor = colorScheme === 'dark' ? '#9BA1A6' : '#6B7280';
 
@@ -53,7 +53,7 @@ export default function InsightsScreen() {
 
   const barData = categories.map((c: Category) => ({
     x: c.name,
-    y: periodActivities.filter((a: Activity) => a.categoryId === c.id).length,
+    y: activities.filter((a: Activity) => a.categoryId === c.id).length,
   }));
 
   const pieData = categories
@@ -72,7 +72,7 @@ export default function InsightsScreen() {
     .map((c: Category) => c.colour);
 
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: Colors[colorScheme].background }]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: bgColor }]}>
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}

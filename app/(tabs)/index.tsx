@@ -100,23 +100,6 @@ export default function TripsScreen() {
               {fromDate ? formatDate(fromDate) : 'Select date'}
             </Text>
           </Pressable>
-          {showFromPicker && (
-            <>
-              <DateTimePicker
-                value={fromDate ? new Date(fromDate) : new Date()}
-                mode="date"
-                display={Platform.OS === 'ios' ? 'inline' : 'default'}
-                textColor={colorScheme === 'dark' ? '#ECEDEE' : '#111827'}
-                onChange={(event, selectedDate) => {
-                  if (Platform.OS === 'android') setShowFromPicker(false);
-                  if (selectedDate) setFromDate(new Date(selectedDate).toISOString().split('T')[0]);
-                }}
-              />
-              {Platform.OS === 'ios' && (
-                <PrimaryButton label="Done" onPress={() => setShowFromPicker(false)} />
-              )}
-            </>
-          )}
         </View>
 
         {/* To date */}
@@ -132,25 +115,40 @@ export default function TripsScreen() {
               {toDate ? formatDate(toDate) : 'Select date'}
             </Text>
           </Pressable>
-          {showToPicker && (
-            <>
-              <DateTimePicker
-                value={toDate ? new Date(toDate) : new Date()}
-                mode="date"
-                display={Platform.OS === 'ios' ? 'inline' : 'default'}
-                textColor={colorScheme === 'dark' ? '#ECEDEE' : '#111827'}
-                onChange={(event, selectedDate) => {
-                  if (Platform.OS === 'android') setShowToPicker(false);
-                  if (selectedDate) setToDate(new Date(selectedDate).toISOString().split('T')[0]);
-                }}
-              />
-              {Platform.OS === 'ios' && (
-                <PrimaryButton label="Done" onPress={() => setShowToPicker(false)} />
-              )}
-            </>
-          )}
         </View>
       </View>
+
+      {/* Shared picker — always at same position regardless of which is active */}
+      {(showFromPicker || showToPicker) && (
+        <View style={{ backgroundColor: colorScheme === 'dark' ? '#1E2022' : '#F0F0F0', borderRadius: 12, padding: 8, marginTop: 4 }}>
+          <DateTimePicker
+            value={
+              showFromPicker
+                ? (fromDate ? new Date(fromDate) : new Date())
+                : (toDate ? new Date(toDate) : new Date())
+            }
+            mode="date"
+            display={Platform.OS === 'ios' ? 'inline' : 'default'}
+            textColor={colorScheme === 'dark' ? '#FFFFFF' : '#000000'}
+            accentColor="#0F766E"
+            onChange={(event, selectedDate) => {
+              if (showFromPicker) {
+                if (Platform.OS === 'android') setShowFromPicker(false);
+                if (selectedDate) setFromDate(new Date(selectedDate).toISOString().split('T')[0]);
+              } else {
+                if (Platform.OS === 'android') setShowToPicker(false);
+                if (selectedDate) setToDate(new Date(selectedDate).toISOString().split('T')[0]);
+              }
+            }}
+          />
+          {Platform.OS === 'ios' && (
+            <PrimaryButton
+              label="Done"
+              onPress={() => { setShowFromPicker(false); setShowToPicker(false); }}
+            />
+          )}
+        </View>
+      )}
 
       <View style={styles.filterRow}>
         {categoryOptions.map((option) => {
@@ -194,7 +192,11 @@ export default function TripsScreen() {
           <Text style={[styles.emptyText, { color: subtitleColor }]}>No trips found</Text>
         ) : (
           filteredTrips.map((trip: Trip) => (
-            <TripCard key={trip.id} trip={trip} />
+            <TripCard
+              key={trip.id}
+              trip={trip}
+              category={categories.find((c: Category) => c.id === trip.categoryId)}
+            />
           ))
         )}
       </ScrollView>
