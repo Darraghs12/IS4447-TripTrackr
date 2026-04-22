@@ -56,13 +56,13 @@ export default function InsightsScreen() {
 
   const barData = categories.map((c: Category) => ({
     x: c.name,
-    y: activities.filter((a: Activity) => a.categoryId === c.id).length,
+    y: periodActivities.filter((a: Activity) => a.categoryId === c.id).length,
   }));
 
   const pieData = categories
     .map((c: Category) => ({
       x: c.name,
-      y: activities
+      y: periodActivities
         .filter((a: Activity) => a.categoryId === c.id)
         .reduce((sum: number, a: Activity) => sum + a.duration, 0),
     }))
@@ -70,7 +70,7 @@ export default function InsightsScreen() {
 
   const pieColours = categories
     .filter((c: Category) =>
-      activities.some((a: Activity) => a.categoryId === c.id)
+      periodActivities.some((a: Activity) => a.categoryId === c.id)
     )
     .map((c: Category) => c.colour);
 

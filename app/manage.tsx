@@ -131,6 +131,9 @@ export default function ManageScreen() {
                     />
                     <Text style={styles.rowName}>
                       {target.amount} activities per {target.type === 'weekly' ? 'week' : 'month'}
+                      {target.categoryId
+                        ? ` — ${categories.find((c: Category) => c.id === target.categoryId)?.name ?? ''}`
+                        : ''}
                     </Text>
                     <View style={styles.progressLabels}>
                       {(met || exceeded) && (

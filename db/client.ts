@@ -63,3 +63,4 @@ sqlite.execSync(`
 `);
 
 export const db = drizzle(sqlite);
+export { sqlite };

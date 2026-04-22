@@ -1,10 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { eq } from 'drizzle-orm';
-import { db } from './client';
+import { db, sqlite } from './client';
 import { activities, categories, targets, trips } from './schema';
 
 // Bump this number whenever seed data changes — forces a fresh reseed on next launch.
-const SEED_VERSION = '4';
+const SEED_VERSION = '5';
 const SEED_VERSION_KEY = 'triptrackr_seed_version';
 
 export async function seedIfEmpty() {
@@ -12,11 +12,16 @@ export async function seedIfEmpty() {
 
   if (storedVersion === SEED_VERSION) return;
 
-  // Version mismatch — wipe all tables and reseed with current data.
+  // Version mismatch — wipe all tables and reset auto-increment counters,
+  // then reseed. Resetting sqlite_sequence ensures IDs restart from 1 so
+  // hardcoded foreign-key references in the seed data stay correct.
   await db.delete(activities);
   await db.delete(targets);
   await db.delete(trips);
   await db.delete(categories);
+  sqlite.execSync(`
+    DELETE FROM sqlite_sequence WHERE name IN ('activities','targets','trips','categories');
+  `);
 
   await db.insert(categories).values([
     { name: 'Outdoor', colour: '#0F766E', icon: 'walk-outline' },
