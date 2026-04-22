@@ -31,7 +31,8 @@ export default function EditCategory() {
 
   if (!context || !category) return null;
 
-  const { setCategories } = context;
+  const { setCategories, colorScheme } = context;
+  const bgColor = colorScheme === 'dark' ? '#151718' : '#F8FAFC';
 
   const saveChanges = async () => {
     await db
@@ -45,7 +46,7 @@ export default function EditCategory() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: bgColor }]}>
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}

@@ -19,7 +19,8 @@ export default function AddCategory() {
   const [colour, setColour] = useState('');
 
   if (!context) return null;
-  const { setCategories } = context;
+  const { setCategories, colorScheme } = context;
+  const bgColor = colorScheme === 'dark' ? '#151718' : '#F8FAFC';
 
   const saveCategory = async () => {
     await db.insert(categoriesTable).values({ name, colour });
@@ -30,7 +31,7 @@ export default function AddCategory() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: bgColor }]}>
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}

@@ -4,7 +4,9 @@ import BackButton from '@/components/ui/back-button';
 import FormField from '@/components/ui/form-field';
 import PrimaryButton from '@/components/ui/primary-button';
 import ScreenHeader from '@/components/ui/screen-header';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { formatDate } from '@/db/utils';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { eq } from 'drizzle-orm';
 import { db } from '@/db/client';
@@ -17,6 +19,7 @@ export default function EditActivity() {
   const context = useContext(TripContext);
   const [name, setName] = useState('');
   const [date, setDate] = useState('');
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [duration, setDuration] = useState('');
   const [metric, setMetric] = useState('');
   const [categoryId, setCategoryId] = useState<number | null>(null);
@@ -37,7 +40,8 @@ export default function EditActivity() {
 
   if (!context || !activity) return null;
 
-  const { setActivities, categories } = context;
+  const { setActivities, categories, colorScheme } = context;
+  const bgColor = colorScheme === 'dark' ? '#151718' : '#F8FAFC';
 
   const saveChanges = async () => {
     if (!name || !date) return;
@@ -53,7 +57,7 @@ export default function EditActivity() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: bgColor }]}>
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
@@ -62,7 +66,38 @@ export default function EditActivity() {
         <ScreenHeader title="Edit Activity" subtitle={`Update ${activity.name}`} />
         <View style={styles.form}>
           <FormField label="Name" value={name} onChangeText={setName} />
-          <FormField label="Date" value={date} onChangeText={setDate} placeholder="YYYY-MM-DD" />
+
+          <View style={styles.datePickerWrapper}>
+            <Text style={styles.datePickerLabel}>Date</Text>
+            <Pressable
+              accessibilityLabel="Select activity date"
+              accessibilityRole="button"
+              onPress={() => setShowDatePicker(true)}
+              style={styles.datePickerButton}
+            >
+              <Text style={[styles.datePickerText, !date && styles.datePickerPlaceholder]}>
+                {date ? formatDate(date) : 'Select date'}
+              </Text>
+            </Pressable>
+            {showDatePicker && (
+              <>
+                <DateTimePicker
+                  value={date ? new Date(date) : new Date()}
+                  mode="date"
+                  display={Platform.OS === 'ios' ? 'inline' : 'default'}
+                  textColor={colorScheme === 'dark' ? '#ECEDEE' : '#111827'}
+                  onChange={(event, selectedDate) => {
+                    if (Platform.OS === 'android') setShowDatePicker(false);
+                    if (selectedDate) setDate(new Date(selectedDate).toISOString().split('T')[0]);
+                  }}
+                />
+                {Platform.OS === 'ios' && (
+                  <PrimaryButton label="Done" onPress={() => setShowDatePicker(false)} />
+                )}
+              </>
+            )}
+          </View>
+
           <FormField label="Duration" value={duration} onChangeText={setDuration} placeholder="e.g. 90" />
           <FormField label="Metric" value={metric} onChangeText={setMetric} placeholder="e.g. minutes" />
 
@@ -113,6 +148,30 @@ const styles = StyleSheet.create({
   },
   form: {
     marginBottom: 6,
+  },
+  datePickerWrapper: {
+    marginBottom: 12,
+  },
+  datePickerLabel: {
+    color: '#334155',
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 6,
+  },
+  datePickerButton: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#CBD5E1',
+    borderRadius: 10,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  datePickerText: {
+    color: '#0F172A',
+    fontSize: 14,
+  },
+  datePickerPlaceholder: {
+    color: '#94A3B8',
   },
   chipWrapper: {
     marginBottom: 12,

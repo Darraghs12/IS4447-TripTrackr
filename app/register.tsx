@@ -7,7 +7,7 @@ import * as bcrypt from 'bcryptjs';
 import { getRandomBytes } from 'expo-crypto';
 import { useRouter } from 'expo-router';
 import { useContext, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TripContext } from './_layout';
 
@@ -81,6 +81,10 @@ export default function RegisterScreen() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
+        <Image
+          source={require('@/assets/images/logo.png')}
+          style={styles.logo}
+        />
         <ScreenHeader title="Create Account" subtitle="Join TripTrackr today" />
         <View style={styles.form}>
           <FormField
@@ -160,5 +164,12 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 8,
     textAlign: 'center',
+  },
+  logo: {
+    alignSelf: 'center',
+    height: 120,
+    marginBottom: 16,
+    resizeMode: 'contain',
+    width: 120,
   },
 });

@@ -18,7 +18,8 @@ export default function TargetDetail() {
 
   if (!context) return null;
 
-  const { targets, setTargets, categories } = context;
+  const { targets, setTargets, categories, colorScheme } = context;
+  const bgColor = colorScheme === 'dark' ? '#151718' : '#F8FAFC';
 
   const target = targets.find((t: Target) => t.id === Number(id));
 
@@ -37,7 +38,7 @@ export default function TargetDetail() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: bgColor }]}>
       <BackButton />
       <ScreenHeader title={`${target.type} target`} subtitle="Goal details" />
       <View style={styles.tags}>

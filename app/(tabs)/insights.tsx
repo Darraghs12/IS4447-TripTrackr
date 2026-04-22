@@ -1,16 +1,27 @@
 import ScreenHeader from '@/components/ui/screen-header';
 import { Colors } from '@/constants/theme';
 import { calculateStreak } from '@/db/streaks';
-import { useContext } from 'react';
-import { Dimensions, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useContext, useState } from 'react';
+import {
+  Dimensions,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { VictoryAxis, VictoryBar, VictoryChart, VictoryPie } from 'victory-native';
 import { Activity, Category, TripContext } from '../_layout';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
+type Period = 'Daily' | 'Weekly' | 'Monthly';
+const PERIODS: Period[] = ['Daily', 'Weekly', 'Monthly'];
+
 export default function InsightsScreen() {
   const context = useContext(TripContext);
+  const [selectedPeriod, setSelectedPeriod] = useState<Period>('Monthly');
 
   if (!context) return null;
 
@@ -18,21 +29,37 @@ export default function InsightsScreen() {
   const textColor = colorScheme === 'dark' ? '#ECEDEE' : '#111827';
   const subtitleColor = colorScheme === 'dark' ? '#9BA1A6' : '#6B7280';
 
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+  const weekAgo = new Date(now);
+  weekAgo.setDate(weekAgo.getDate() - 6);
+  const weekAgoStr = weekAgo.toISOString().split('T')[0];
+  const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+
+  const periodActivities = activities.filter((a: Activity) => {
+    if (selectedPeriod === 'Daily') return a.date === todayStr;
+    if (selectedPeriod === 'Weekly') return a.date >= weekAgoStr && a.date <= todayStr;
+    return a.date >= monthStart && a.date <= todayStr;
+  });
+
+  const periodTripIds = new Set(periodActivities.map((a: Activity) => a.tripId));
+  const periodTripCount = periodTripIds.size;
+
   const streak = calculateStreak(activities, targets);
 
   const totalHours = Math.round(
-    activities.reduce((sum: number, a: Activity) => sum + a.duration, 0) / 60
+    periodActivities.reduce((sum: number, a: Activity) => sum + a.duration, 0) / 60
   );
 
   const barData = categories.map((c: Category) => ({
     x: c.name,
-    y: activities.filter((a: Activity) => a.categoryId === c.id).length,
+    y: periodActivities.filter((a: Activity) => a.categoryId === c.id).length,
   }));
 
   const pieData = categories
     .map((c: Category) => ({
       x: c.name,
-      y: activities
+      y: periodActivities
         .filter((a: Activity) => a.categoryId === c.id)
         .reduce((sum: number, a: Activity) => sum + a.duration, 0),
     }))
@@ -40,7 +67,7 @@ export default function InsightsScreen() {
 
   const pieColours = categories
     .filter((c: Category) =>
-      activities.some((a: Activity) => a.categoryId === c.id)
+      periodActivities.some((a: Activity) => a.categoryId === c.id)
     )
     .map((c: Category) => c.colour);
 
@@ -57,6 +84,33 @@ export default function InsightsScreen() {
           subtitleColor={subtitleColor}
         />
 
+        <View style={styles.filterRow}>
+          {PERIODS.map((period) => {
+            const isSelected = selectedPeriod === period;
+            return (
+              <Pressable
+                key={period}
+                accessibilityLabel={`Show ${period.toLowerCase()} stats`}
+                accessibilityRole="button"
+                onPress={() => setSelectedPeriod(period)}
+                style={[
+                  styles.filterButton,
+                  isSelected && styles.filterButtonSelected,
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.filterButtonText,
+                    isSelected && styles.filterButtonTextSelected,
+                  ]}
+                >
+                  {period}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
         <View style={styles.streakCard}>
           {streak === 0 ? (
             <Text style={styles.streakEmpty}>No current streak</Text>
@@ -70,11 +124,11 @@ export default function InsightsScreen() {
 
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{trips.length}</Text>
+            <Text style={styles.statNumber}>{periodTripCount}</Text>
             <Text style={styles.statLabel}>Trips</Text>
           </View>
           <View style={styles.statCard}>
-            <Text style={styles.statNumber}>{activities.length}</Text>
+            <Text style={styles.statNumber}>{periodActivities.length}</Text>
             <Text style={styles.statLabel}>Activities</Text>
           </View>
           <View style={styles.statCard}>
@@ -85,7 +139,7 @@ export default function InsightsScreen() {
 
         <Text style={[styles.sectionTitle, { color: textColor }]}>Activities by Category</Text>
 
-        {barData.length === 0 ? (
+        {barData.every((d) => d.y === 0) ? (
           <Text style={[styles.emptyText, { color: subtitleColor }]}>No data yet</Text>
         ) : (
           <View style={styles.chartCard}>
@@ -154,6 +208,32 @@ const styles = StyleSheet.create({
   },
   content: {
     paddingBottom: 24,
+  },
+  filterRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    marginBottom: 16,
+  },
+  filterButton: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#94A3B8',
+    borderRadius: 999,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+  },
+  filterButtonSelected: {
+    backgroundColor: '#0F172A',
+    borderColor: '#0F172A',
+  },
+  filterButtonText: {
+    color: '#0F172A',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  filterButtonTextSelected: {
+    color: '#FFFFFF',
   },
   streakCard: {
     alignItems: 'center',

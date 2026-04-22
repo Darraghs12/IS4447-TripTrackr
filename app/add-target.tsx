@@ -18,7 +18,8 @@ export default function AddTarget() {
   const [categoryId, setCategoryId] = useState('');
 
   if (!context) return null;
-  const { setTargets } = context;
+  const { setTargets, colorScheme } = context;
+  const bgColor = colorScheme === 'dark' ? '#151718' : '#F8FAFC';
 
   const saveTarget = async () => {
     await db.insert(targetsTable).values({
@@ -33,7 +34,7 @@ export default function AddTarget() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: bgColor }]}>
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}

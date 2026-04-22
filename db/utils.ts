@@ -1,5 +1,10 @@
 export function formatDate(dateString: string): string {
-  const [year, month, day] = dateString.split('-');
+  if (!dateString || !dateString.includes('-')) return dateString;
+  const parts = dateString.split('-');
+  if (parts.length !== 3) return dateString;
+  const [year, month, day] = parts;
   const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  return `${parseInt(day)} ${months[parseInt(month) - 1]} ${year}`;
+  const monthIndex = parseInt(month) - 1;
+  if (monthIndex < 0 || monthIndex > 11) return dateString;
+  return `${parseInt(day)} ${months[monthIndex]} ${year}`;
 }

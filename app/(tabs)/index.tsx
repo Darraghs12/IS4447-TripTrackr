@@ -1,10 +1,12 @@
 import TripCard from '@/components/TripCard';
 import PrimaryButton from '@/components/ui/primary-button';
 import ScreenHeader from '@/components/ui/screen-header';
-import { Colors } from '@/constants/theme';
+import { formatDate } from '@/db/utils';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useRouter } from 'expo-router';
 import { useContext, useState } from 'react';
 import {
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -20,14 +22,25 @@ export default function TripsScreen() {
   const context = useContext(TripContext);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
+  const [showFromPicker, setShowFromPicker] = useState(false);
+  const [showToPicker, setShowToPicker] = useState(false);
 
   if (!context) return null;
 
   const { trips, categories, colorScheme } = context;
+  const bgColor = colorScheme === 'dark' ? '#151718' : '#F8FAFC';
   const textColor = colorScheme === 'dark' ? '#ECEDEE' : '#111827';
   const subtitleColor = colorScheme === 'dark' ? '#9BA1A6' : '#6B7280';
   const normalizedQuery = searchQuery.trim().toLowerCase();
   const categoryOptions = ['All', ...categories.map((c: Category) => c.name)];
+
+  const isFiltered =
+    normalizedQuery.length > 0 ||
+    selectedCategory !== 'All' ||
+    fromDate.length > 0 ||
+    toDate.length > 0;
 
   const filteredTrips = trips.filter((trip: Trip) => {
     const matchesSearch =
@@ -39,11 +52,21 @@ export default function TripsScreen() {
       selectedCategory === 'All' ||
       categories.find((c: Category) => c.id === trip.categoryId)?.name === selectedCategory;
 
-    return matchesSearch && matchesCategory;
+    const matchesFrom = fromDate.length === 0 || trip.startDate >= fromDate;
+    const matchesTo = toDate.length === 0 || trip.startDate <= toDate;
+
+    return matchesSearch && matchesCategory && matchesFrom && matchesTo;
   });
 
+  const clearFilters = () => {
+    setSearchQuery('');
+    setSelectedCategory('All');
+    setFromDate('');
+    setToDate('');
+  };
+
   return (
-    <SafeAreaView style={[styles.safeArea, { backgroundColor: Colors[colorScheme].background }]}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: bgColor }]}>
       <ScreenHeader
         title="Trips"
         subtitle={`${trips.length} trips planned`}
@@ -62,6 +85,72 @@ export default function TripsScreen() {
         placeholder="Search by name or destination"
         style={styles.searchInput}
       />
+
+      <View style={styles.dateRow}>
+        {/* From date */}
+        <View style={styles.dateField}>
+          <Text style={styles.datePickerLabel}>From</Text>
+          <Pressable
+            accessibilityLabel="Select from date"
+            accessibilityRole="button"
+            onPress={() => { setShowToPicker(false); setShowFromPicker(true); }}
+            style={styles.datePickerButton}
+          >
+            <Text style={[styles.datePickerText, !fromDate && styles.datePickerPlaceholder]}>
+              {fromDate ? formatDate(fromDate) : 'Select date'}
+            </Text>
+          </Pressable>
+          {showFromPicker && (
+            <>
+              <DateTimePicker
+                value={fromDate ? new Date(fromDate) : new Date()}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'inline' : 'default'}
+                textColor={colorScheme === 'dark' ? '#ECEDEE' : '#111827'}
+                onChange={(event, selectedDate) => {
+                  if (Platform.OS === 'android') setShowFromPicker(false);
+                  if (selectedDate) setFromDate(new Date(selectedDate).toISOString().split('T')[0]);
+                }}
+              />
+              {Platform.OS === 'ios' && (
+                <PrimaryButton label="Done" onPress={() => setShowFromPicker(false)} />
+              )}
+            </>
+          )}
+        </View>
+
+        {/* To date */}
+        <View style={styles.dateField}>
+          <Text style={styles.datePickerLabel}>To</Text>
+          <Pressable
+            accessibilityLabel="Select to date"
+            accessibilityRole="button"
+            onPress={() => { setShowFromPicker(false); setShowToPicker(true); }}
+            style={styles.datePickerButton}
+          >
+            <Text style={[styles.datePickerText, !toDate && styles.datePickerPlaceholder]}>
+              {toDate ? formatDate(toDate) : 'Select date'}
+            </Text>
+          </Pressable>
+          {showToPicker && (
+            <>
+              <DateTimePicker
+                value={toDate ? new Date(toDate) : new Date()}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'inline' : 'default'}
+                textColor={colorScheme === 'dark' ? '#ECEDEE' : '#111827'}
+                onChange={(event, selectedDate) => {
+                  if (Platform.OS === 'android') setShowToPicker(false);
+                  if (selectedDate) setToDate(new Date(selectedDate).toISOString().split('T')[0]);
+                }}
+              />
+              {Platform.OS === 'ios' && (
+                <PrimaryButton label="Done" onPress={() => setShowToPicker(false)} />
+              )}
+            </>
+          )}
+        </View>
+      </View>
 
       <View style={styles.filterRow}>
         {categoryOptions.map((option) => {
@@ -90,6 +179,12 @@ export default function TripsScreen() {
           );
         })}
       </View>
+
+      {isFiltered ? (
+        <View style={styles.clearButton}>
+          <PrimaryButton label="Clear Filters" variant="secondary" onPress={clearFilters} />
+        </View>
+      ) : null}
 
       <ScrollView
         contentContainerStyle={styles.listContent}
@@ -127,6 +222,35 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
   },
+  dateRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 10,
+  },
+  dateField: {
+    flex: 1,
+  },
+  datePickerLabel: {
+    color: '#334155',
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
+  datePickerButton: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#CBD5E1',
+    borderRadius: 10,
+    borderWidth: 1,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+  },
+  datePickerText: {
+    color: '#0F172A',
+    fontSize: 14,
+  },
+  datePickerPlaceholder: {
+    color: '#94A3B8',
+  },
   filterRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -152,6 +276,9 @@ const styles = StyleSheet.create({
   },
   filterButtonTextSelected: {
     color: '#FFFFFF',
+  },
+  clearButton: {
+    marginTop: 10,
   },
   emptyText: {
     color: '#475569',

@@ -18,7 +18,8 @@ export default function CategoryDetail() {
 
   if (!context) return null;
 
-  const { categories, setCategories } = context;
+  const { categories, setCategories, colorScheme } = context;
+  const bgColor = colorScheme === 'dark' ? '#151718' : '#F8FAFC';
 
   const category = categories.find((c: Category) => c.id === Number(id));
 
@@ -35,7 +36,7 @@ export default function CategoryDetail() {
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: bgColor }]}>
       <BackButton />
       <ScreenHeader title={category.name} subtitle="Category details" />
       <View style={styles.tags}>

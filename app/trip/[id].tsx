@@ -84,7 +84,10 @@ export default function TripDetail() {
 
   if (!context) return null;
 
-  const { trips, setTrips, activities, categories } = context;
+  const { trips, setTrips, activities, categories, colorScheme } = context;
+  const bgColor = colorScheme === 'dark' ? '#151718' : '#F8FAFC';
+  const textColor = colorScheme === 'dark' ? '#ECEDEE' : '#111827';
+  const subtitleColor = colorScheme === 'dark' ? '#9BA1A6' : '#6B7280';
 
   const trip = trips.find((t: Trip) => t.id === Number(id));
 
@@ -149,13 +152,13 @@ export default function TripDetail() {
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: bgColor }]}>
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
         <BackButton />
-        <ScreenHeader title={trip.name} subtitle={trip.destination} />
+        <ScreenHeader title={trip.name} subtitle={trip.destination} textColor={textColor} subtitleColor={subtitleColor} />
         <View style={styles.tags}>
           <InfoTag label="From" value={formatDate(trip.startDate)} />
           <InfoTag label="To" value={formatDate(trip.endDate)} />
@@ -176,7 +179,7 @@ export default function TripDetail() {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Activities</Text>
+          <Text style={[styles.sectionTitle, { color: textColor }]}>Activities</Text>
           <PrimaryButton
             label="Add Activity"
             onPress={() =>

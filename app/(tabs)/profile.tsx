@@ -9,7 +9,7 @@ import { useRouter } from 'expo-router';
 import { useContext } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Category, Target, TripContext } from '../_layout';
+import { Activity, Category, Target, TripContext } from '../_layout';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -20,6 +20,21 @@ export default function ProfileScreen() {
   const { trips, activities, categories, targets, currentUser, setCurrentUser, colorScheme, toggleTheme } = context;
   const textColor = colorScheme === 'dark' ? '#ECEDEE' : '#111827';
   const subtitleColor = colorScheme === 'dark' ? '#9BA1A6' : '#6B7280';
+
+  const now = new Date();
+  const todayStr = now.toISOString().split('T')[0];
+  const weekAgo = new Date(now);
+  weekAgo.setDate(weekAgo.getDate() - 6);
+  const weekAgoStr = weekAgo.toISOString().split('T')[0];
+  const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+
+  const getTargetCount = (target: Target): number =>
+    activities.filter((a: Activity) => {
+      const fromDate = target.type === 'weekly' ? weekAgoStr : monthStart;
+      const inPeriod = a.date >= fromDate && a.date <= todayStr;
+      const inCategory = target.categoryId == null || a.categoryId === target.categoryId;
+      return inPeriod && inCategory;
+    }).length;
 
   const handleLogout = () => {
     setCurrentUser(null);
@@ -100,25 +115,34 @@ export default function ProfileScreen() {
             {targets.length === 0 ? (
               <Text style={[styles.emptyText, { color: subtitleColor }]}>No targets set - add a goal to track your progress</Text>
             ) : (
-              targets.map((target: Target) => (
-                <Pressable
-                  key={target.id}
-                  accessibilityLabel={`${target.amount} activities per ${target.type === 'weekly' ? 'week' : 'month'}, view details`}
-                  accessibilityRole="button"
-                  onPress={() =>
-                    router.push({
-                      pathname: '/target/[id]',
-                      params: { id: target.id.toString() },
-                    })
-                  }
-                  style={({ pressed }) => [
-                    styles.row,
-                    pressed ? styles.rowPressed : null,
-                  ]}
-                >
-                  <Text style={styles.rowName}>{target.amount} activities per {target.type === 'weekly' ? 'week' : 'month'}</Text>
-                </Pressable>
-              ))
+              targets.map((target: Target) => {
+                const count = getTargetCount(target);
+                const remaining = target.amount - count;
+                return (
+                  <Pressable
+                    key={target.id}
+                    accessibilityLabel={`${target.amount} activities per ${target.type === 'weekly' ? 'week' : 'month'}, view details`}
+                    accessibilityRole="button"
+                    onPress={() =>
+                      router.push({
+                        pathname: '/target/[id]',
+                        params: { id: target.id.toString() },
+                      })
+                    }
+                    style={({ pressed }) => [
+                      styles.row,
+                      pressed ? styles.rowPressed : null,
+                    ]}
+                  >
+                    <Text style={styles.rowName}>
+                      {target.amount} activities per {target.type === 'weekly' ? 'week' : 'month'}
+                    </Text>
+                    <Text style={remaining <= 0 ? styles.progressMet : styles.progressRemaining}>
+                      {remaining <= 0 ? 'Target met!' : `${remaining} remaining`}
+                    </Text>
+                  </Pressable>
+                );
+              })
             )}
           </View>
         </View>
@@ -234,6 +258,15 @@ const styles = StyleSheet.create({
   },
   dangerButton: {
     marginTop: 10,
+  },
+  progressMet: {
+    color: '#0F766E',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  progressRemaining: {
+    color: '#6B7280',
+    fontSize: 13,
   },
   themeRow: {
     alignItems: 'center',
