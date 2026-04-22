@@ -3,11 +3,11 @@ import { activities as activitiesTable, targets as targetsTable } from './schema
 type Activity = typeof activitiesTable.$inferSelect;
 type Target = typeof targetsTable.$inferSelect;
 
-function toLocalDateString(d: Date): string {
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, '0');
+function localDateStr(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
+  return `${y}-${m}-${day}`;
 }
 
 export function calculateStreak(activities: Activity[], _targets: Target[]): number {
@@ -15,12 +15,20 @@ export function calculateStreak(activities: Activity[], _targets: Target[]): num
 
   const activityDates = new Set(activities.map((a) => a.date));
 
+  // Use local time throughout so the date matches the device's calendar day.
+  const now = new Date();
+  const cursor = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  // Grace: if nothing has been logged today yet, start counting from yesterday
+  // so an active streak isn't broken mid-day.
+  if (!activityDates.has(localDateStr(cursor))) {
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
   let streak = 0;
-  const cursor = new Date();
 
   for (;;) {
-    const dateStr = toLocalDateString(cursor);
-    if (!activityDates.has(dateStr)) break;
+    if (!activityDates.has(localDateStr(cursor))) break;
     streak++;
     cursor.setDate(cursor.getDate() - 1);
   }

@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { VictoryAxis, VictoryBar, VictoryChart, VictoryPie } from 'victory-native';
-import { Activity, Category, TripContext } from '../_layout';
+import { Activity, Category, Trip, TripContext } from '../_layout';
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 
@@ -32,7 +32,7 @@ export default function InsightsScreen() {
   const now = new Date();
   const todayStr = now.toISOString().split('T')[0];
   const weekAgo = new Date(now);
-  weekAgo.setDate(weekAgo.getDate() - 6);
+  weekAgo.setDate(weekAgo.getDate() - 7);
   const weekAgoStr = weekAgo.toISOString().split('T')[0];
   const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
 
@@ -42,8 +42,11 @@ export default function InsightsScreen() {
     return a.date >= monthStart && a.date <= todayStr;
   });
 
-  const periodTripIds = new Set(periodActivities.map((a: Activity) => a.tripId));
-  const periodTripCount = periodTripIds.size;
+  const periodTripCount = trips.filter((t: Trip) => {
+    if (selectedPeriod === 'Daily') return t.startDate === todayStr;
+    if (selectedPeriod === 'Weekly') return t.startDate >= weekAgoStr && t.startDate <= todayStr;
+    return t.startDate >= monthStart && t.startDate <= todayStr;
+  }).length;
 
   const streak = calculateStreak(activities, targets);
 

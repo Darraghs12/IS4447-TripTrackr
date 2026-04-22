@@ -8,7 +8,7 @@ import {
   trips as tripsTable,
   users as usersTable,
 } from '@/db/schema';
-import { seedIfEmpty } from '@/db/seed';
+import { backfillTodayActivity, seedIfEmpty } from '@/db/seed';
 import { ColorScheme } from '@/constants/theme';
 import { Stack, useRouter } from 'expo-router';
 import { createContext, useEffect, useState } from 'react';
@@ -62,6 +62,7 @@ export default function RootLayout() {
     async function load() {
       await Notifications.requestPermissionsAsync();
       await seedIfEmpty();
+      await backfillTodayActivity();
       const tripRows = await db.select().from(tripsTable);
       const activityRows = await db.select().from(activitiesTable);
       const categoryRows = await db.select().from(categoriesTable);
