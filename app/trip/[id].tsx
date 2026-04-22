@@ -5,6 +5,7 @@ import InfoTag from '@/components/ui/info-tag';
 import PrimaryButton from '@/components/ui/primary-button';
 import ScreenHeader from '@/components/ui/screen-header';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { WebView } from 'react-native-webview';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { eq } from 'drizzle-orm';
 import * as Notifications from 'expo-notifications';
@@ -41,6 +42,7 @@ export default function TripDetail() {
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [weatherLoading, setWeatherLoading] = useState(true);
   const [weatherError, setWeatherError] = useState(false);
+  const [coords, setCoords] = useState<{ lat: number; lon: number } | null>(null);
 
   useEffect(() => {
     if (!context) return;
@@ -60,6 +62,8 @@ export default function TripDetail() {
           setWeatherError(true);
           return;
         }
+
+        setCoords({ lat: location.latitude, lon: location.longitude });
 
         const weatherRes = await fetch(
           `${WEATHER_URL}?latitude=${location.latitude}&longitude=${location.longitude}&current_weather=true`
@@ -178,6 +182,24 @@ export default function TripDetail() {
           )}
         </View>
 
+        {coords ? (
+          <View style={styles.mapCard}>
+            <Text style={styles.mapTitle}>Location</Text>
+            <WebView
+              source={{
+                html: `<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width, initial-scale=1.0"><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/><script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script><style>body{margin:0;padding:0;}#map{width:100%;height:160px;}</style></head><body><div id="map"></div><script>var map=L.map('map',{zoomControl:false}).setView([${coords.lat},${coords.lon}],11);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);L.marker([${coords.lat},${coords.lon}]).addTo(map);</script></body></html>`,
+              }}
+              style={styles.mapWebView}
+              scrollEnabled={false}
+            />
+          </View>
+        ) : !weatherError ? (
+          <View style={styles.mapCard}>
+            <Text style={styles.mapTitle}>Location</Text>
+            <Text style={styles.weatherBody}>Loading map...</Text>
+          </View>
+        ) : null}
+
         <View style={styles.section}>
           <Text style={[styles.sectionTitle, { color: textColor }]}>Activities</Text>
           <PrimaryButton
@@ -269,6 +291,26 @@ const styles = StyleSheet.create({
   weatherBody: {
     color: '#6B7280',
     fontSize: 14,
+  },
+  mapCard: {
+    backgroundColor: '#FFFFFF',
+    borderColor: '#E5E7EB',
+    borderRadius: 14,
+    borderWidth: 1,
+    marginBottom: 12,
+    padding: 14,
+  },
+  mapTitle: {
+    color: '#334155',
+    fontSize: 13,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+  mapWebView: {
+    borderRadius: 10,
+    height: 160,
+    overflow: 'hidden',
+    width: '100%',
   },
   buttonSpacing: {
     marginTop: 10,

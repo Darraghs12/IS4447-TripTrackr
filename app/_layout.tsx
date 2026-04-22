@@ -112,7 +112,9 @@ export default function RootLayout() {
         toggleTheme,
       }}
     >
-      <Stack screenOptions={{ headerShown: false }} />
+      <Stack screenOptions={{ headerShown: false }}>
+        <Stack.Screen name="manage" />
+      </Stack>
     </TripContext.Provider>
   );
 }

@@ -3,39 +3,35 @@ import ScreenHeader from '@/components/ui/screen-header';
 import { db } from '@/db/client';
 import { exportActivitiesCSV } from '@/db/export';
 import { users as usersTable } from '@/db/schema';
-import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { eq } from 'drizzle-orm';
+import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
-import { useContext } from 'react';
-import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useContext, useEffect, useState } from 'react';
+import { Alert, Image, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Activity, Category, Target, TripContext } from '../_layout';
+import { TripContext } from '../_layout';
+
+const PROFILE_PIC_KEY = 'profilePicture';
 
 export default function ProfileScreen() {
   const router = useRouter();
   const context = useContext(TripContext);
+  const [profilePic, setProfilePic] = useState<string | null>(null);
+
+  useEffect(() => {
+    AsyncStorage.getItem(PROFILE_PIC_KEY).then((uri) => {
+      if (uri) setProfilePic(uri);
+    });
+  }, []);
 
   if (!context) return null;
 
-  const { trips, activities, categories, targets, currentUser, setCurrentUser, colorScheme, toggleTheme } = context;
+  const { trips, activities, categories, currentUser, setCurrentUser, colorScheme, toggleTheme } = context;
   const bgColor = colorScheme === 'dark' ? '#151718' : '#F8FAFC';
   const textColor = colorScheme === 'dark' ? '#ECEDEE' : '#111827';
   const subtitleColor = colorScheme === 'dark' ? '#9BA1A6' : '#6B7280';
-
-  const now = new Date();
-  const todayStr = now.toISOString().split('T')[0];
-  const weekAgo = new Date(now);
-  weekAgo.setDate(weekAgo.getDate() - 6);
-  const weekAgoStr = weekAgo.toISOString().split('T')[0];
-  const monthStart = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
-
-  const getTargetCount = (target: Target): number =>
-    activities.filter((a: Activity) => {
-      const fromDate = target.type === 'weekly' ? weekAgoStr : monthStart;
-      const inPeriod = a.date >= fromDate && a.date <= todayStr;
-      const inCategory = target.categoryId == null || a.categoryId === target.categoryId;
-      return inPeriod && inCategory;
-    }).length;
 
   const handleLogout = () => {
     setCurrentUser(null);
@@ -47,6 +43,20 @@ export default function ProfileScreen() {
     await db.delete(usersTable).where(eq(usersTable.id, currentUser.id));
     setCurrentUser(null);
     router.replace('/login');
+  };
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.5,
+    });
+    if (!result.canceled && result.assets[0]?.uri) {
+      const uri = result.assets[0].uri;
+      setProfilePic(uri);
+      await AsyncStorage.setItem(PROFILE_PIC_KEY, uri);
+    }
   };
 
   const handleExport = async () => {
@@ -65,92 +75,35 @@ export default function ProfileScreen() {
       >
         <ScreenHeader
           title="Profile"
-          subtitle="Categories and targets"
+          subtitle="Account and settings"
           textColor={textColor}
           subtitleColor={subtitleColor}
         />
 
-        <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: textColor }]}>Categories</Text>
-          <PrimaryButton
-            label="Add Category"
-            onPress={() => router.push({ pathname: '/add-category' })}
-          />
-          <View style={styles.list}>
-            {categories.length === 0 ? (
-              <Text style={[styles.emptyText, { color: subtitleColor }]}>No categories yet</Text>
+        <View style={styles.avatarSection}>
+          <Pressable
+            accessibilityLabel="Change profile photo"
+            accessibilityRole="button"
+            onPress={pickImage}
+            style={styles.avatarCircle}
+          >
+            {profilePic ? (
+              <Image source={{ uri: profilePic }} style={styles.avatarImage} />
             ) : (
-              categories.map((category: Category) => (
-                <Pressable
-                  key={category.id}
-                  accessibilityLabel={`${category.name}, view category`}
-                  accessibilityRole="button"
-                  onPress={() =>
-                    router.push({
-                      pathname: '/category/[id]',
-                      params: { id: category.id.toString() },
-                    })
-                  }
-                  style={({ pressed }) => [
-                    styles.row,
-                    pressed ? styles.rowPressed : null,
-                  ]}
-                >
-                  <View style={styles.rowContent}>
-                    <View style={[styles.colourDot, { backgroundColor: category.colour }]} />
-                    <Ionicons
-                      name={(category.icon ?? 'map-outline') as any}
-                      size={18}
-                      color={category.colour}
-                    />
-                    <Text style={styles.rowName}>{category.name}</Text>
-                  </View>
-                </Pressable>
-              ))
+              <View style={styles.avatarPlaceholder}>
+                <Ionicons name="person-outline" size={36} color="#94A3B8" />
+              </View>
             )}
-          </View>
+          </Pressable>
+          <Text style={styles.avatarLabel}>Change Photo</Text>
         </View>
 
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: textColor }]}>Targets</Text>
           <PrimaryButton
-            label="Add Target"
-            onPress={() => router.push({ pathname: '/add-target' })}
+            label="Manage Categories & Targets"
+            variant="secondary"
+            onPress={() => router.push({ pathname: '/manage' })}
           />
-          <View style={styles.list}>
-            {targets.length === 0 ? (
-              <Text style={[styles.emptyText, { color: subtitleColor }]}>No targets set - add a goal to track your progress</Text>
-            ) : (
-              targets.map((target: Target) => {
-                const count = getTargetCount(target);
-                const remaining = target.amount - count;
-                return (
-                  <Pressable
-                    key={target.id}
-                    accessibilityLabel={`${target.amount} activities per ${target.type === 'weekly' ? 'week' : 'month'}, view details`}
-                    accessibilityRole="button"
-                    onPress={() =>
-                      router.push({
-                        pathname: '/target/[id]',
-                        params: { id: target.id.toString() },
-                      })
-                    }
-                    style={({ pressed }) => [
-                      styles.row,
-                      pressed ? styles.rowPressed : null,
-                    ]}
-                  >
-                    <Text style={styles.rowName}>
-                      {target.amount} activities per {target.type === 'weekly' ? 'week' : 'month'}
-                    </Text>
-                    <Text style={remaining <= 0 ? styles.progressMet : styles.progressRemaining}>
-                      {remaining <= 0 ? 'Target met!' : `${remaining} remaining`}
-                    </Text>
-                  </Pressable>
-                );
-              })
-            )}
-          </View>
         </View>
 
         <View style={styles.section}>
@@ -215,46 +168,31 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginBottom: 12,
   },
-  list: {
-    marginTop: 12,
-  },
-  row: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#E5E7EB',
-    borderRadius: 10,
-    borderWidth: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-  },
-  rowPressed: {
-    opacity: 0.88,
-  },
-  rowContent: {
+  avatarSection: {
     alignItems: 'center',
-    flexDirection: 'row',
-    gap: 10,
+    marginBottom: 28,
   },
-  colourDot: {
-    borderRadius: 7,
-    height: 14,
-    width: 14,
+  avatarCircle: {
+    height: 80,
+    width: 80,
   },
-  rowName: {
-    color: '#111827',
-    fontSize: 15,
-    fontWeight: '500',
+  avatarPlaceholder: {
+    alignItems: 'center',
+    backgroundColor: '#E5E7EB',
+    borderRadius: 40,
+    height: 80,
+    justifyContent: 'center',
+    width: 80,
   },
-  rowDetail: {
-    color: '#6B7280',
-    fontSize: 14,
+  avatarImage: {
+    borderRadius: 40,
+    height: 80,
+    width: 80,
   },
-  emptyText: {
-    color: '#475569',
-    fontSize: 16,
-    paddingTop: 8,
+  avatarLabel: {
+    color: '#0F766E',
+    fontSize: 13,
+    marginTop: 6,
     textAlign: 'center',
   },
   emailText: {
@@ -264,15 +202,6 @@ const styles = StyleSheet.create({
   },
   dangerButton: {
     marginTop: 10,
-  },
-  progressMet: {
-    color: '#0F766E',
-    fontSize: 13,
-    fontWeight: '600',
-  },
-  progressRemaining: {
-    color: '#6B7280',
-    fontSize: 13,
   },
   themeRow: {
     alignItems: 'center',

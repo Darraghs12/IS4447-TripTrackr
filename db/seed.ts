@@ -1,13 +1,22 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { eq } from 'drizzle-orm';
 import { db } from './client';
 import { activities, categories, targets, trips } from './schema';
 
-export async function seedIfEmpty() {
-  const existing = await db.select().from(categories);
+// Bump this number whenever seed data changes — forces a fresh reseed on next launch.
+const SEED_VERSION = '4';
+const SEED_VERSION_KEY = 'triptrackr_seed_version';
 
-  if (existing.length > 0) {
-    return;
-  }
+export async function seedIfEmpty() {
+  const storedVersion = await AsyncStorage.getItem(SEED_VERSION_KEY);
+
+  if (storedVersion === SEED_VERSION) return;
+
+  // Version mismatch — wipe all tables and reseed with current data.
+  await db.delete(activities);
+  await db.delete(targets);
+  await db.delete(trips);
+  await db.delete(categories);
 
   await db.insert(categories).values([
     { name: 'Outdoor', colour: '#0F766E', icon: 'walk-outline' },
@@ -26,20 +35,20 @@ export async function seedIfEmpty() {
       notes: 'Cherry blossom season trip',
     },
     {
-      name: 'Amalfi Coast',
-      destination: 'Amalfi, Italy',
+      name: 'Amsterdam Weekend',
+      destination: 'Amsterdam',
       startDate: '2026-06-01',
-      endDate: '2026-06-10',
+      endDate: '2026-06-04',
       categoryId: 3,
-      notes: 'Summer relaxation holiday',
+      notes: 'Canals, museums and cycling',
     },
     {
-      name: 'Patagonia Trek',
-      destination: 'Patagonia, Argentina',
-      startDate: '2026-04-10',
-      endDate: '2026-04-25',
+      name: 'Barcelona City Break',
+      destination: 'Barcelona',
+      startDate: '2026-05-10',
+      endDate: '2026-05-17',
       categoryId: 1,
-      notes: 'Torres del Paine circuit',
+      notes: 'Architecture and beaches',
     },
     {
       name: 'Barcelona Food Tour',
@@ -48,6 +57,14 @@ export async function seedIfEmpty() {
       endDate: '2026-04-21',
       categoryId: 4,
       notes: 'Tapas, markets and food tours',
+    },
+    {
+      name: 'Lads Holiday',
+      destination: 'Boston',
+      startDate: '2026-05-28',
+      endDate: '2026-06-05',
+      categoryId: 1,
+      notes: 'Long weekend with the lads',
     },
     // Weekly-range trips (Apr 15–22) for insights Weekly view
     {
@@ -114,54 +131,7 @@ export async function seedIfEmpty() {
       categoryId: 1,
       notes: 'Trail 1, full loop',
     },
-    // Amalfi Coast — June 2026 (upcoming)
-    {
-      tripId: 2,
-      name: 'Boat Tour to Positano',
-      date: '2026-06-02',
-      duration: 180,
-      metric: 'minutes',
-      categoryId: 3,
-      notes: null,
-    },
-    {
-      tripId: 2,
-      name: 'Villa Rufolo Gardens',
-      date: '2026-06-04',
-      duration: 90,
-      metric: 'minutes',
-      categoryId: 2,
-      notes: 'Stunning views',
-    },
-    // Patagonia Trek — streak days 1, 2, 3 (Apr 17–19)
-    {
-      tripId: 3,
-      name: 'W Trek Day 1',
-      date: '2026-04-17',
-      duration: 480,
-      metric: 'minutes',
-      categoryId: 1,
-      notes: 'Mirador Las Torres',
-    },
-    {
-      tripId: 3,
-      name: 'W Trek Day 2',
-      date: '2026-04-18',
-      duration: 420,
-      metric: 'minutes',
-      categoryId: 1,
-      notes: 'Valle del Frances',
-    },
-    {
-      tripId: 3,
-      name: 'Grey Glacier Walk',
-      date: '2026-04-19',
-      duration: 300,
-      metric: 'minutes',
-      categoryId: 1,
-      notes: null,
-    },
-    // Barcelona Food Tour — streak days 4, 5 (Apr 20–21)
+    // Barcelona Food Tour — streak days (Apr 20–21)
     {
       tripId: 4,
       name: 'La Boqueria Market',
@@ -189,9 +159,9 @@ export async function seedIfEmpty() {
       categoryId: 2,
       notes: 'Booked tickets in advance',
     },
-    // Lisbon Weekend (tripId 5) — fills streak gap Apr 15–16
+    // Lisbon Weekend (tripId 6) — fills streak gap Apr 15–16
     {
-      tripId: 5,
+      tripId: 6,
       name: 'Belem Tower',
       date: '2026-04-15',
       duration: 90,
@@ -200,7 +170,7 @@ export async function seedIfEmpty() {
       notes: 'Beautiful riverside monument',
     },
     {
-      tripId: 5,
+      tripId: 6,
       name: 'Pasteis de Nata Tasting',
       date: '2026-04-16',
       duration: 60,
@@ -208,9 +178,9 @@ export async function seedIfEmpty() {
       categoryId: 4,
       notes: 'Best custard tarts in Lisbon',
     },
-    // Dublin City Break (tripId 6) — Apr 19–20
+    // Dublin City Break (tripId 7) — Apr 19–20
     {
-      tripId: 6,
+      tripId: 7,
       name: 'Trinity College Walk',
       date: '2026-04-19',
       duration: 120,
@@ -219,7 +189,7 @@ export async function seedIfEmpty() {
       notes: 'Book of Kells and library',
     },
     {
-      tripId: 6,
+      tripId: 7,
       name: 'Guinness Storehouse',
       date: '2026-04-20',
       duration: 90,
@@ -227,9 +197,9 @@ export async function seedIfEmpty() {
       categoryId: 4,
       notes: 'Tour and rooftop bar',
     },
-    // Paris Day Trip (tripId 7) — today Apr 22, populates Daily view + extends streak
+    // Paris Day Trip (tripId 8) — today Apr 22, populates Daily view + extends streak
     {
-      tripId: 7,
+      tripId: 8,
       name: 'Eiffel Tower',
       date: '2026-04-22',
       duration: 120,
@@ -238,13 +208,124 @@ export async function seedIfEmpty() {
       notes: 'Morning visit, beat the crowds',
     },
     {
-      tripId: 7,
+      tripId: 8,
       name: 'Louvre Museum',
       date: '2026-04-22',
       duration: 180,
       metric: 'minutes',
       categoryId: 2,
       notes: 'Highlights tour',
+    },
+    // Amsterdam Weekend (tripId 2) — June 2026
+    {
+      tripId: 2,
+      name: 'Anne Frank House',
+      date: '2026-06-01',
+      duration: 90,
+      metric: 'minutes',
+      categoryId: 2,
+      notes: 'Book tickets well in advance',
+    },
+    {
+      tripId: 2,
+      name: 'Canal Boat Tour',
+      date: '2026-06-02',
+      duration: 120,
+      metric: 'minutes',
+      categoryId: 3,
+      notes: 'Evening cruise through the Jordaan',
+    },
+    {
+      tripId: 2,
+      name: 'Rijksmuseum Visit',
+      date: '2026-06-03',
+      duration: 150,
+      metric: 'minutes',
+      categoryId: 2,
+      notes: 'Rembrandt and Vermeer highlights',
+    },
+    {
+      tripId: 2,
+      name: 'Vondelpark Walk',
+      date: '2026-06-04',
+      duration: 60,
+      metric: 'minutes',
+      categoryId: 1,
+      notes: null,
+    },
+    // Barcelona City Break (tripId 3) — May 2026
+    {
+      tripId: 3,
+      name: 'Park Güell Visit',
+      date: '2026-05-11',
+      duration: 150,
+      metric: 'minutes',
+      categoryId: 3,
+      notes: 'Gaudí mosaics and city views',
+    },
+    {
+      tripId: 3,
+      name: 'Gothic Quarter Walk',
+      date: '2026-05-13',
+      duration: 120,
+      metric: 'minutes',
+      categoryId: 1,
+      notes: 'Medieval streets and cathedral',
+    },
+    {
+      tripId: 3,
+      name: 'Camp Nou Stadium Tour',
+      date: '2026-05-15',
+      duration: 90,
+      metric: 'minutes',
+      categoryId: 2,
+      notes: 'Museum and pitch-side access',
+    },
+    // Lads Holiday — Boston, May–June 2026 (tripId 5)
+    {
+      tripId: 5,
+      name: 'Freedom Trail Walk',
+      date: '2026-05-29',
+      duration: 150,
+      metric: 'minutes',
+      categoryId: 1,
+      notes: '2.5-mile historic route through downtown',
+    },
+    {
+      tripId: 5,
+      name: 'Fenway Park Tour',
+      date: '2026-05-30',
+      duration: 120,
+      metric: 'minutes',
+      categoryId: 3,
+      notes: 'America\'s oldest ballpark',
+    },
+    {
+      tripId: 5,
+      name: 'Harvard Campus Visit',
+      date: '2026-06-01',
+      duration: 90,
+      metric: 'minutes',
+      categoryId: 2,
+      notes: 'Self-guided walk around Harvard Yard',
+    },
+    {
+      tripId: 5,
+      name: 'Boston Harbor Cruise',
+      date: '2026-06-02',
+      duration: 180,
+      metric: 'minutes',
+      categoryId: 3,
+      notes: 'Sunset cruise past the harbour islands',
+    },
+    {
+      tripId: 5,
+      name: 'Duck Boat Tour',
+      date: '2026-06-04',
+      duration: 90,
+      metric: 'minutes',
+      categoryId: 1,
+      notes: 'Amphibious tour — road and Charles River',
     },
   ]);
 
@@ -253,7 +334,11 @@ export async function seedIfEmpty() {
     { type: 'monthly', amount: 10, categoryId: null },
     { type: 'weekly', amount: 2, categoryId: 2 },
     { type: 'monthly', amount: 4, categoryId: 4 },
+    // Weekly target of 2 (any category) — exceeded by seed activities Apr 16–22
+    { type: 'weekly', amount: 2, categoryId: null },
   ]);
+
+  await AsyncStorage.setItem(SEED_VERSION_KEY, SEED_VERSION);
 }
 
 /**
