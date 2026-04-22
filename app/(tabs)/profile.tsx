@@ -80,8 +80,10 @@ export default function ProfileScreen() {
                     pressed ? styles.rowPressed : null,
                   ]}
                 >
-                  <Text style={styles.rowName}>{category.name}</Text>
-                  <Text style={styles.rowDetail}>{category.colour}</Text>
+                  <View style={styles.rowContent}>
+                    <View style={[styles.colourDot, { backgroundColor: category.colour }]} />
+                    <Text style={styles.rowName}>{category.name}</Text>
+                  </View>
                 </Pressable>
               ))
             )}
@@ -96,12 +98,12 @@ export default function ProfileScreen() {
           />
           <View style={styles.list}>
             {targets.length === 0 ? (
-              <Text style={[styles.emptyText, { color: subtitleColor }]}>No targets yet</Text>
+              <Text style={[styles.emptyText, { color: subtitleColor }]}>No targets set - add a goal to track your progress</Text>
             ) : (
               targets.map((target: Target) => (
                 <Pressable
                   key={target.id}
-                  accessibilityLabel={`${target.type} target, ${target.amount} activities, view details`}
+                  accessibilityLabel={`${target.amount} activities per ${target.type === 'weekly' ? 'week' : 'month'}, view details`}
                   accessibilityRole="button"
                   onPress={() =>
                     router.push({
@@ -114,8 +116,7 @@ export default function ProfileScreen() {
                     pressed ? styles.rowPressed : null,
                   ]}
                 >
-                  <Text style={styles.rowName}>{target.type}</Text>
-                  <Text style={styles.rowDetail}>{target.amount} activities</Text>
+                  <Text style={styles.rowName}>{target.amount} activities per {target.type === 'weekly' ? 'week' : 'month'}</Text>
                 </Pressable>
               ))
             )}
@@ -200,6 +201,16 @@ const styles = StyleSheet.create({
   },
   rowPressed: {
     opacity: 0.88,
+  },
+  rowContent: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 10,
+  },
+  colourDot: {
+    borderRadius: 7,
+    height: 14,
+    width: 14,
   },
   rowName: {
     color: '#111827',

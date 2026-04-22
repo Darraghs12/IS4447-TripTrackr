@@ -1,15 +1,18 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useContext, useEffect, useState } from 'react';
+import BackButton from '@/components/ui/back-button';
 import InfoTag from '@/components/ui/info-tag';
 import PrimaryButton from '@/components/ui/primary-button';
 import ScreenHeader from '@/components/ui/screen-header';
-import { Alert, StyleSheet, Text, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { eq } from 'drizzle-orm';
 import * as Notifications from 'expo-notifications';
 import { db } from '@/db/client';
 import { trips as tripsTable } from '@/db/schema';
-import { Trip, TripContext } from '../_layout';
+import { Activity, Trip, TripContext } from '../_layout';
+import ActivityCard from '@/components/ActivityCard';
+import { formatDate } from '@/db/utils';
 
 const GEOCODING_URL = 'https://geocoding-api.open-meteo.com/v1/search';
 const WEATHER_URL = process.env.EXPO_PUBLIC_WEATHER_API;
@@ -81,7 +84,7 @@ export default function TripDetail() {
 
   if (!context) return null;
 
-  const { trips, setTrips, categories } = context;
+  const { trips, setTrips, activities, categories } = context;
 
   const trip = trips.find((t: Trip) => t.id === Number(id));
 
@@ -141,68 +144,96 @@ export default function TripDetail() {
     Alert.alert('Reminder set', "You'll be reminded to pack on " + packDateStr);
   };
 
+  const tripActivities = activities.filter(
+    (a: Activity) => a.tripId === Number(id)
+  );
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <ScreenHeader title={trip.name} subtitle={trip.destination} />
-      <View style={styles.tags}>
-        <InfoTag label="From" value={trip.startDate} />
-        <InfoTag label="To" value={trip.endDate} />
-        {category ? <InfoTag label="Category" value={category.name} /> : null}
-      </View>
+      <ScrollView
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+      >
+        <BackButton />
+        <ScreenHeader title={trip.name} subtitle={trip.destination} />
+        <View style={styles.tags}>
+          <InfoTag label="From" value={formatDate(trip.startDate)} />
+          <InfoTag label="To" value={formatDate(trip.endDate)} />
+          {category ? <InfoTag label="Category" value={category.name} /> : null}
+        </View>
 
-      <View style={styles.weatherCard}>
-        <Text style={styles.weatherTitle}>Current Weather</Text>
-        {weatherLoading ? (
-          <Text style={styles.weatherBody}>Loading weather...</Text>
-        ) : weatherError || !weather ? (
-          <Text style={styles.weatherBody}>Weather unavailable</Text>
-        ) : (
-          <Text style={styles.weatherBody}>
-            {weather.temperature}°C - {weatherDescription(weather.weathercode)}
-          </Text>
-        )}
-      </View>
+        <View style={styles.weatherCard}>
+          <Text style={styles.weatherTitle}>Current Weather</Text>
+          {weatherLoading ? (
+            <Text style={styles.weatherBody}>Loading weather...</Text>
+          ) : weatherError || !weather ? (
+            <Text style={styles.weatherBody}>Weather unavailable</Text>
+          ) : (
+            <Text style={styles.weatherBody}>
+              {weather.temperature}°C - {weatherDescription(weather.weathercode)}
+            </Text>
+          )}
+        </View>
 
-      <PrimaryButton
-        label="Add Activity"
-        onPress={() =>
-          router.push({ pathname: '/trip/[id]/add-activity', params: { id } })
-        }
-      />
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Activities</Text>
+          <PrimaryButton
+            label="Add Activity"
+            onPress={() =>
+              router.push({ pathname: '/trip/[id]/add-activity', params: { id } })
+            }
+          />
+          <View style={styles.activityList}>
+            {tripActivities.length === 0 ? (
+              <Text style={styles.emptyText}>No activities yet</Text>
+            ) : (
+              tripActivities.map((activity: Activity) => {
+                const activityCategory = categories.find(
+                  (c) => c.id === activity.categoryId
+                );
+                return (
+                  <ActivityCard
+                    key={activity.id}
+                    activity={activity}
+                    tripId={Number(id)}
+                    categoryName={activityCategory?.name}
+                  />
+                );
+              })
+            )}
+          </View>
+        </View>
 
-      <View style={styles.buttonSpacing}>
-        <PrimaryButton
-          label="Edit"
-          variant="secondary"
-          onPress={() =>
-            router.push({ pathname: '/trip/[id]/edit', params: { id } })
-          }
-        />
-      </View>
+        <View style={styles.buttonSpacing}>
+          <PrimaryButton
+            label="Edit"
+            variant="secondary"
+            onPress={() =>
+              router.push({ pathname: '/trip/[id]/edit', params: { id } })
+            }
+          />
+        </View>
 
-      <View style={styles.buttonSpacing}>
-        <PrimaryButton
-          label="Set Reminder"
-          variant="secondary"
-          onPress={setTripReminder}
-        />
-      </View>
+        <View style={styles.buttonSpacing}>
+          <PrimaryButton
+            label="Set Reminder"
+            variant="secondary"
+            onPress={setTripReminder}
+          />
+        </View>
 
-      <View style={styles.buttonSpacing}>
-        <PrimaryButton
-          label="Remind me to pack"
-          variant="secondary"
-          onPress={setPackReminder}
-        />
-      </View>
+        <View style={styles.buttonSpacing}>
+          <PrimaryButton
+            label="Remind me to pack"
+            variant="secondary"
+            onPress={setPackReminder}
+          />
+        </View>
 
-      <View style={styles.buttonSpacing}>
-        <PrimaryButton label="Delete" variant="danger" onPress={deleteTrip} />
-      </View>
-
-      <View style={styles.buttonSpacing}>
-        <PrimaryButton label="Back" variant="secondary" onPress={() => router.back()} />
-      </View>
+        <View style={styles.buttonSpacing}>
+          <PrimaryButton label="Delete" variant="danger" onPress={deleteTrip} />
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -238,5 +269,26 @@ const styles = StyleSheet.create({
   },
   buttonSpacing: {
     marginTop: 10,
+  },
+  content: {
+    paddingBottom: 32,
+  },
+  section: {
+    marginBottom: 8,
+    marginTop: 4,
+  },
+  sectionTitle: {
+    color: '#111827',
+    fontSize: 16,
+    fontWeight: '700',
+    marginBottom: 8,
+  },
+  activityList: {
+    marginTop: 12,
+  },
+  emptyText: {
+    color: '#6B7280',
+    fontSize: 14,
+    paddingTop: 4,
   },
 });

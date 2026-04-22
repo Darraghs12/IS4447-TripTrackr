@@ -1,5 +1,6 @@
 import { Trip } from '@/app/_layout';
 import InfoTag from '@/components/ui/info-tag';
+import { formatDate } from '@/db/utils';
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -29,8 +30,8 @@ export default function TripCard({ trip }: Props) {
 
       <View style={styles.tags}>
         <InfoTag label="Destination" value={trip.destination} />
-        <InfoTag label="From" value={trip.startDate} />
-        <InfoTag label="To" value={trip.endDate} />
+        <InfoTag label="From" value={formatDate(trip.startDate)} />
+        <InfoTag label="To" value={formatDate(trip.endDate)} />
       </View>
     </Pressable>
   );

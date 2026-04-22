@@ -1,3 +1,4 @@
+import BackButton from '@/components/ui/back-button';
 import FormField from '@/components/ui/form-field';
 import PrimaryButton from '@/components/ui/primary-button';
 import ScreenHeader from '@/components/ui/screen-header';
@@ -37,7 +38,11 @@ export default function AddTarget() {
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
-        <ScreenHeader title="Add Target" subtitle="Set a new activity goal." />
+        <BackButton />
+        <ScreenHeader
+          title="Add Target"
+          subtitle="Set a goal for number of activities per week or month"
+        />
         <View style={styles.form}>
           <FormField label="Type" value={type} onChangeText={setType} placeholder="weekly or monthly" />
           <FormField label="Amount" value={amount} onChangeText={setAmount} placeholder="e.g. 3" />
@@ -45,9 +50,6 @@ export default function AddTarget() {
         </View>
 
         <PrimaryButton label="Save Target" onPress={saveTarget} />
-        <View style={styles.backButton}>
-          <PrimaryButton label="Cancel" variant="secondary" onPress={() => router.back()} />
-        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -64,8 +66,5 @@ const styles = StyleSheet.create({
   },
   form: {
     marginBottom: 6,
-  },
-  backButton: {
-    marginTop: 10,
   },
 });

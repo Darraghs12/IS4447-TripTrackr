@@ -1,5 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useContext } from 'react';
+import BackButton from '@/components/ui/back-button';
 import InfoTag from '@/components/ui/info-tag';
 import PrimaryButton from '@/components/ui/primary-button';
 import ScreenHeader from '@/components/ui/screen-header';
@@ -37,6 +38,7 @@ export default function TargetDetail() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
+      <BackButton />
       <ScreenHeader title={`${target.type} target`} subtitle="Goal details" />
       <View style={styles.tags}>
         <InfoTag label="Type" value={target.type} />

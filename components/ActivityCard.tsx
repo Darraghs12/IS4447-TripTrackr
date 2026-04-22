@@ -1,5 +1,6 @@
 import { Activity } from '@/app/_layout';
 import InfoTag from '@/components/ui/info-tag';
+import { formatDate } from '@/db/utils';
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
@@ -33,7 +34,7 @@ export default function ActivityCard({ activity, tripId, categoryName }: Props) 
       </View>
 
       <View style={styles.tags}>
-        <InfoTag label="Date" value={activity.date} />
+        <InfoTag label="Date" value={formatDate(activity.date)} />
         <InfoTag label="Duration" value={`${activity.duration} ${activity.metric}`} />
         {categoryName ? <InfoTag label="Category" value={categoryName} /> : null}
       </View>
