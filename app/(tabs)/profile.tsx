@@ -1,5 +1,6 @@
 import PrimaryButton from '@/components/ui/primary-button';
 import ScreenHeader from '@/components/ui/screen-header';
+import { Colours } from '@/constants/colours';
 import { db } from '@/db/client';
 import { exportActivitiesCSV } from '@/db/export';
 import { users as usersTable } from '@/db/schema';
@@ -7,9 +8,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { eq } from 'drizzle-orm';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Avatar } from '@rneui/themed';
 import { useContext, useEffect, useState } from 'react';
-import { Alert, Image, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TripContext } from '../_layout';
 
@@ -29,9 +30,9 @@ export default function ProfileScreen() {
   if (!context) return null;
 
   const { trips, activities, categories, currentUser, setCurrentUser, colorScheme, toggleTheme } = context;
-  const bgColor = colorScheme === 'dark' ? '#151718' : '#F8FAFC';
-  const textColor = colorScheme === 'dark' ? '#ECEDEE' : '#111827';
-  const subtitleColor = colorScheme === 'dark' ? '#9BA1A6' : '#6B7280';
+  const bgColor = colorScheme === 'dark' ? '#151718' : Colours.background;
+  const textColor = colorScheme === 'dark' ? '#ECEDEE' : Colours.textPrimary;
+  const subtitleColor = colorScheme === 'dark' ? '#9BA1A6' : Colours.textSecondary;
 
   const handleLogout = () => {
     setCurrentUser(null);
@@ -85,15 +86,14 @@ export default function ProfileScreen() {
             accessibilityLabel="Change profile photo"
             accessibilityRole="button"
             onPress={pickImage}
-            style={styles.avatarCircle}
           >
-            {profilePic ? (
-              <Image source={{ uri: profilePic }} style={styles.avatarImage} />
-            ) : (
-              <View style={styles.avatarPlaceholder}>
-                <Ionicons name="person-outline" size={36} color="#94A3B8" />
-              </View>
-            )}
+            <Avatar
+              size={80}
+              rounded
+              source={profilePic ? { uri: profilePic } : undefined}
+              icon={!profilePic ? { name: 'person-outline', type: 'ionicon', color: Colours.textSecondary } : undefined}
+              containerStyle={{ backgroundColor: Colours.border }}
+            />
           </Pressable>
           <Text style={styles.avatarLabel}>Change Photo</Text>
         </View>
@@ -113,8 +113,8 @@ export default function ProfileScreen() {
             <Switch
               value={colorScheme === 'dark'}
               onValueChange={toggleTheme}
-              trackColor={{ false: '#CBD5E1', true: '#0F766E' }}
-              thumbColor="#FFFFFF"
+              trackColor={{ false: Colours.border, true: Colours.primary }}
+              thumbColor={Colours.surface}
             />
           </View>
         </View>
@@ -151,7 +151,6 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: '#F8FAFC',
     flex: 1,
     paddingHorizontal: 18,
     paddingTop: 10,
@@ -163,7 +162,6 @@ const styles = StyleSheet.create({
     marginBottom: 28,
   },
   sectionTitle: {
-    color: '#111827',
     fontSize: 18,
     fontWeight: '700',
     marginBottom: 12,
@@ -172,31 +170,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 28,
   },
-  avatarCircle: {
-    height: 80,
-    width: 80,
-  },
-  avatarPlaceholder: {
-    alignItems: 'center',
-    backgroundColor: '#E5E7EB',
-    borderRadius: 40,
-    height: 80,
-    justifyContent: 'center',
-    width: 80,
-  },
-  avatarImage: {
-    borderRadius: 40,
-    height: 80,
-    width: 80,
-  },
   avatarLabel: {
-    color: '#0F766E',
+    color: Colours.primary,
     fontSize: 13,
     marginTop: 6,
     textAlign: 'center',
   },
   emailText: {
-    color: '#475569',
     fontSize: 14,
     marginBottom: 12,
   },
@@ -209,7 +189,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   themeLabel: {
-    color: '#111827',
     fontSize: 15,
     fontWeight: '500',
   },

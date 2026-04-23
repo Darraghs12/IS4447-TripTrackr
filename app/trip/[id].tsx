@@ -4,11 +4,13 @@ import BackButton from '@/components/ui/back-button';
 import InfoTag from '@/components/ui/info-tag';
 import PrimaryButton from '@/components/ui/primary-button';
 import ScreenHeader from '@/components/ui/screen-header';
+import { Colours } from '@/constants/colours';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { eq } from 'drizzle-orm';
 import * as Notifications from 'expo-notifications';
+import { Skeleton } from '@rneui/themed';
 import { db } from '@/db/client';
 import { trips as tripsTable } from '@/db/schema';
 import { Activity, Trip, TripContext } from '../_layout';
@@ -89,9 +91,9 @@ export default function TripDetail() {
   if (!context) return null;
 
   const { trips, setTrips, activities, categories, colorScheme } = context;
-  const bgColor = colorScheme === 'dark' ? '#151718' : '#F8FAFC';
-  const textColor = colorScheme === 'dark' ? '#ECEDEE' : '#111827';
-  const subtitleColor = colorScheme === 'dark' ? '#9BA1A6' : '#6B7280';
+  const bgColor = colorScheme === 'dark' ? '#151718' : Colours.background;
+  const textColor = colorScheme === 'dark' ? '#ECEDEE' : Colours.textPrimary;
+  const subtitleColor = colorScheme === 'dark' ? '#9BA1A6' : Colours.textSecondary;
 
   const trip = trips.find((t: Trip) => t.id === Number(id));
 
@@ -172,7 +174,9 @@ export default function TripDetail() {
         <View style={styles.weatherCard}>
           <Text style={styles.weatherTitle}>Current Weather</Text>
           {weatherLoading ? (
-            <Text style={styles.weatherBody}>Loading weather...</Text>
+            <View style={{ gap: 6 }}>
+              <Skeleton width={180} height={16} style={{ borderRadius: 6 }} />
+            </View>
           ) : weatherError || !weather ? (
             <Text style={styles.weatherBody}>Weather unavailable</Text>
           ) : (
@@ -196,7 +200,7 @@ export default function TripDetail() {
         ) : !weatherError ? (
           <View style={styles.mapCard}>
             <Text style={styles.mapTitle}>Location</Text>
-            <Text style={styles.weatherBody}>Loading map...</Text>
+            <Skeleton width="100%" height={160} style={{ borderRadius: 10 }} />
           </View>
         ) : null}
 
@@ -265,7 +269,6 @@ export default function TripDetail() {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: '#F8FAFC',
     flex: 1,
     padding: 20,
   },
@@ -275,33 +278,33 @@ const styles = StyleSheet.create({
     marginBottom: 18,
   },
   weatherCard: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#E5E7EB',
+    backgroundColor: Colours.surface,
+    borderColor: Colours.border,
     borderRadius: 14,
     borderWidth: 1,
     marginBottom: 18,
     padding: 14,
   },
   weatherTitle: {
-    color: '#111827',
+    color: Colours.textPrimary,
     fontSize: 14,
     fontWeight: '600',
     marginBottom: 6,
   },
   weatherBody: {
-    color: '#6B7280',
+    color: Colours.textSecondary,
     fontSize: 14,
   },
   mapCard: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#E5E7EB',
+    backgroundColor: Colours.surface,
+    borderColor: Colours.border,
     borderRadius: 14,
     borderWidth: 1,
     marginBottom: 12,
     padding: 14,
   },
   mapTitle: {
-    color: '#334155',
+    color: Colours.labelText,
     fontSize: 13,
     fontWeight: '600',
     marginBottom: 8,
@@ -323,7 +326,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   sectionTitle: {
-    color: '#111827',
     fontSize: 16,
     fontWeight: '700',
     marginBottom: 8,
@@ -332,7 +334,7 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   emptyText: {
-    color: '#6B7280',
+    color: Colours.textSecondary,
     fontSize: 14,
     paddingTop: 4,
   },

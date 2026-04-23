@@ -4,7 +4,8 @@ import BackButton from '@/components/ui/back-button';
 import FormField from '@/components/ui/form-field';
 import PrimaryButton from '@/components/ui/primary-button';
 import ScreenHeader from '@/components/ui/screen-header';
-import { Ionicons } from '@expo/vector-icons';
+import { Colours } from '@/constants/colours';
+import { Icon } from '@rneui/themed';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { eq } from 'drizzle-orm';
@@ -41,7 +42,7 @@ export default function EditCategory() {
   if (!context || !category) return null;
 
   const { setCategories, colorScheme } = context;
-  const bgColor = colorScheme === 'dark' ? '#151718' : '#F8FAFC';
+  const bgColor = colorScheme === 'dark' ? '#151718' : Colours.background;
 
   const saveChanges = async () => {
     await db
@@ -96,10 +97,11 @@ export default function EditCategory() {
                     onPress={() => setIcon(ic)}
                     style={[styles.iconButton, isSelected && styles.iconButtonSelected]}
                   >
-                    <Ionicons
+                    <Icon
                       name={ic as any}
+                      type="ionicon"
                       size={24}
-                      color={isSelected ? '#0F766E' : '#0F172A'}
+                      color={isSelected ? Colours.primary : Colours.textPrimary}
                     />
                   </Pressable>
                 );
@@ -116,7 +118,6 @@ export default function EditCategory() {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: '#F8FAFC',
     flex: 1,
     padding: 20,
   },
@@ -130,7 +131,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   colourLabel: {
-    color: '#334155',
+    color: Colours.labelText,
     fontSize: 13,
     fontWeight: '600',
     marginBottom: 6,
@@ -146,14 +147,14 @@ const styles = StyleSheet.create({
     width: 32,
   },
   swatchSelected: {
-    borderColor: '#0F172A',
+    borderColor: Colours.textPrimary,
     borderWidth: 2,
   },
   iconWrapper: {
     marginBottom: 12,
   },
   iconLabel: {
-    color: '#334155',
+    color: Colours.labelText,
     fontSize: 13,
     fontWeight: '600',
     marginBottom: 6,
@@ -165,8 +166,8 @@ const styles = StyleSheet.create({
   },
   iconButton: {
     alignItems: 'center',
-    backgroundColor: '#F8FAFC',
-    borderColor: '#E5E7EB',
+    backgroundColor: Colours.background,
+    borderColor: Colours.border,
     borderRadius: 10,
     borderWidth: 1,
     height: 44,
@@ -174,8 +175,8 @@ const styles = StyleSheet.create({
     width: 44,
   },
   iconButtonSelected: {
-    backgroundColor: '#F0FDF9',
-    borderColor: '#0F766E',
+    backgroundColor: Colours.primaryLight,
+    borderColor: Colours.primary,
     borderWidth: 2,
   },
 });

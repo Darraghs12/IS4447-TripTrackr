@@ -1,3 +1,4 @@
+import { Colours } from '@/constants/colours';
 import { StyleSheet, Text, TextInput, View } from 'react-native';
 
 type Props = {
@@ -29,14 +30,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   label: {
-    color: '#334155',
+    color: Colours.labelText,
     fontSize: 13,
     fontWeight: '600',
     marginBottom: 6,
   },
   input: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#CBD5E1',
+    backgroundColor: Colours.surface,
+    borderColor: Colours.border,
     borderRadius: 10,
     borderWidth: 1,
     fontSize: 15,

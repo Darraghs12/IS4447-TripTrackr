@@ -4,8 +4,10 @@ import BackButton from '@/components/ui/back-button';
 import FormField from '@/components/ui/form-field';
 import PrimaryButton from '@/components/ui/primary-button';
 import ScreenHeader from '@/components/ui/screen-header';
+import { Colours } from '@/constants/colours';
 import { formatDate } from '@/db/utils';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { Chip } from '@rneui/themed';
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { eq } from 'drizzle-orm';
@@ -49,7 +51,7 @@ export default function EditTrip() {
   if (!context || !trip) return null;
 
   const { setTrips, categories, colorScheme } = context;
-  const bgColor = colorScheme === 'dark' ? '#151718' : '#F8FAFC';
+  const bgColor = colorScheme === 'dark' ? '#151718' : Colours.background;
 
   const saveChanges = async () => {
     await db
@@ -95,7 +97,7 @@ export default function EditTrip() {
                   mode="date"
                   display={Platform.OS === 'ios' ? 'inline' : 'default'}
                   textColor={colorScheme === 'dark' ? '#FFFFFF' : '#000000'}
-                  accentColor="#0F766E"
+                  accentColor={Colours.primary}
                   onChange={(event, selectedDate) => {
                     if (Platform.OS === 'android') setShowStartPicker(false);
                     if (selectedDate) setStartDate(new Date(selectedDate).toISOString().split('T')[0]);
@@ -128,7 +130,7 @@ export default function EditTrip() {
                   mode="date"
                   display={Platform.OS === 'ios' ? 'inline' : 'default'}
                   textColor={colorScheme === 'dark' ? '#FFFFFF' : '#000000'}
-                  accentColor="#0F766E"
+                  accentColor={Colours.primary}
                   onChange={(event, selectedDate) => {
                     if (Platform.OS === 'android') setShowEndPicker(false);
                     if (selectedDate) setEndDate(new Date(selectedDate).toISOString().split('T')[0]);
@@ -147,22 +149,24 @@ export default function EditTrip() {
               {categories.map((cat: Category) => {
                 const isSelected = categoryId === cat.id;
                 return (
-                  <Pressable
+                  <Chip
                     key={cat.id}
-                    accessibilityLabel={`Select category ${cat.name}`}
-                    accessibilityRole="button"
+                    title={cat.name}
                     onPress={() => setCategoryId(isSelected ? null : cat.id)}
-                    style={[
-                      styles.chip,
-                      isSelected
-                        ? { backgroundColor: cat.colour, borderColor: cat.colour }
-                        : null,
-                    ]}
-                  >
-                    <Text style={[styles.chipText, isSelected && styles.chipTextSelected]}>
-                      {cat.name}
-                    </Text>
-                  </Pressable>
+                    containerStyle={{ marginRight: 6, marginBottom: 6 }}
+                    buttonStyle={{
+                      backgroundColor: isSelected ? cat.colour : Colours.surface,
+                      borderColor: isSelected ? cat.colour : Colours.border,
+                      borderWidth: 1,
+                      borderRadius: 999,
+                    }}
+                    titleStyle={{
+                      color: isSelected ? Colours.surface : Colours.textPrimary,
+                      fontSize: 14,
+                      fontWeight: '500',
+                    }}
+                    type="solid"
+                  />
                 );
               })}
             </View>
@@ -179,7 +183,6 @@ export default function EditTrip() {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: '#F8FAFC',
     flex: 1,
     padding: 20,
   },
@@ -193,31 +196,31 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   datePickerLabel: {
-    color: '#334155',
+    color: Colours.labelText,
     fontSize: 13,
     fontWeight: '600',
     marginBottom: 6,
   },
   datePickerButton: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#CBD5E1',
+    backgroundColor: Colours.surface,
+    borderColor: Colours.border,
     borderRadius: 10,
     borderWidth: 1,
     paddingHorizontal: 12,
     paddingVertical: 10,
   },
   datePickerText: {
-    color: '#0F172A',
+    color: Colours.textPrimary,
     fontSize: 14,
   },
   datePickerPlaceholder: {
-    color: '#94A3B8',
+    color: Colours.textSecondary,
   },
   chipWrapper: {
     marginBottom: 12,
   },
   chipLabel: {
-    color: '#334155',
+    color: Colours.labelText,
     fontSize: 13,
     fontWeight: '600',
     marginBottom: 6,
@@ -225,26 +228,10 @@ const styles = StyleSheet.create({
   chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
-  },
-  chip: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#94A3B8',
-    borderRadius: 999,
-    borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  chipText: {
-    color: '#0F172A',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  chipTextSelected: {
-    color: '#FFFFFF',
+    gap: 4,
   },
   hint: {
-    color: '#6B7280',
+    color: Colours.textSecondary,
     fontSize: 12,
     marginTop: 4,
     marginBottom: 8,

@@ -1,3 +1,4 @@
+import { Colours } from '@/constants/colours';
 import { Pressable, StyleSheet, Text } from 'react-native';
 
 type Props = {
@@ -46,19 +47,19 @@ export default function PrimaryButton({
 const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
-    backgroundColor: '#0F766E',
+    backgroundColor: Colours.primary,
     borderRadius: 10,
     paddingHorizontal: 14,
     paddingVertical: 11,
   },
   secondary: {
-    backgroundColor: '#F8FAFC',
-    borderColor: '#94A3B8',
+    backgroundColor: Colours.background,
+    borderColor: Colours.border,
     borderWidth: 1,
   },
   danger: {
-    backgroundColor: '#FEF2F2',
-    borderColor: '#FCA5A5',
+    backgroundColor: Colours.dangerLight,
+    borderColor: Colours.dangerLight,
     borderWidth: 1,
   },
   compact: {
@@ -74,15 +75,15 @@ const styles = StyleSheet.create({
     opacity: 0.5,
   },
   label: {
-    color: '#FFFFFF',
+    color: Colours.surface,
     fontSize: 15,
     fontWeight: '600',
   },
   secondaryLabel: {
-    color: '#0F172A',
+    color: Colours.textPrimary,
   },
   dangerLabel: {
-    color: '#7F1D1D',
+    color: Colours.dangerText,
   },
   compactLabel: {
     fontSize: 13,

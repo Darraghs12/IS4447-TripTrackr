@@ -1,6 +1,7 @@
 import FormField from '@/components/ui/form-field';
 import PrimaryButton from '@/components/ui/primary-button';
 import ScreenHeader from '@/components/ui/screen-header';
+import { Colours } from '@/constants/colours';
 import { db } from '@/db/client';
 import { users as usersTable } from '@/db/schema';
 import * as bcrypt from 'bcryptjs';
@@ -129,7 +130,7 @@ export default function RegisterScreen() {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: Colours.background,
     flex: 1,
     padding: 20,
   },
@@ -140,7 +141,7 @@ const styles = StyleSheet.create({
     marginBottom: 6,
   },
   error: {
-    color: '#DC2626',
+    color: Colours.danger,
     fontSize: 14,
     marginBottom: 12,
     textAlign: 'center',
@@ -151,25 +152,25 @@ const styles = StyleSheet.create({
     marginTop: 18,
   },
   linkText: {
-    color: '#475569',
+    color: Colours.textSecondary,
     fontSize: 14,
   },
   link: {
-    color: '#1D4ED8',
+    color: Colours.primary,
     fontSize: 14,
     fontWeight: '600',
   },
   loadingText: {
-    color: '#6B7280',
+    color: Colours.textSecondary,
     fontSize: 14,
     marginBottom: 8,
     textAlign: 'center',
   },
   logo: {
     alignSelf: 'center',
-    height: 120,
-    marginBottom: 16,
+    height: 250,
+    marginBottom: 1,
     resizeMode: 'contain',
-    width: 120,
+    width: 250,
   },
 });

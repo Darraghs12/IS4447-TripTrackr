@@ -10,6 +10,8 @@ import {
 } from '@/db/schema';
 import { backfillTodayActivity, seedIfEmpty } from '@/db/seed';
 import { ColorScheme } from '@/constants/theme';
+import { Colours } from '@/constants/colours';
+import { ThemeProvider, createTheme } from '@rneui/themed';
 import { Stack, useRouter } from 'expo-router';
 import { createContext, useEffect, useState } from 'react';
 
@@ -30,6 +32,15 @@ Notifications.setNotificationHandler({
 });
 
 const THEME_KEY = 'triptrackr_theme';
+
+const rneTheme = createTheme({
+  lightColors: {
+    primary: Colours.primary,
+    background: Colours.background,
+    white: Colours.surface,
+    divider: Colours.border,
+  },
+});
 
 type TripContextType = {
   trips: Trip[];
@@ -96,25 +107,27 @@ export default function RootLayout() {
   };
 
   return (
-    <TripContext.Provider
-      value={{
-        trips,
-        setTrips,
-        activities,
-        setActivities,
-        categories,
-        setCategories,
-        targets,
-        setTargets,
-        currentUser,
-        setCurrentUser,
-        colorScheme,
-        toggleTheme,
-      }}
-    >
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="manage" />
-      </Stack>
-    </TripContext.Provider>
+    <ThemeProvider theme={rneTheme}>
+      <TripContext.Provider
+        value={{
+          trips,
+          setTrips,
+          activities,
+          setActivities,
+          categories,
+          setCategories,
+          targets,
+          setTargets,
+          currentUser,
+          setCurrentUser,
+          colorScheme,
+          toggleTheme,
+        }}
+      >
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="manage" />
+        </Stack>
+      </TripContext.Provider>
+    </ThemeProvider>
   );
 }

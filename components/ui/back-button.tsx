@@ -1,4 +1,5 @@
-import { Ionicons } from '@expo/vector-icons';
+import { Colours } from '@/constants/colours';
+import { Icon } from '@rneui/themed';
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet } from 'react-native';
 
@@ -8,7 +9,7 @@ type Props = {
 
 export default function BackButton({ colorScheme }: Props) {
   const router = useRouter();
-  const iconColor = colorScheme === 'dark' ? '#ECEDEE' : '#0F172A';
+  const iconColor = colorScheme === 'dark' ? '#ECEDEE' : Colours.textPrimary;
   return (
     <Pressable
       accessibilityLabel="Go back"
@@ -16,7 +17,7 @@ export default function BackButton({ colorScheme }: Props) {
       onPress={() => router.back()}
       style={styles.button}
     >
-      <Ionicons name="arrow-back" size={24} color={iconColor} />
+      <Icon name="arrow-back" type="ionicon" size={24} color={iconColor} />
     </Pressable>
   );
 }

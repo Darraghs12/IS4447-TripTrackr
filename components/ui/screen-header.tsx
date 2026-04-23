@@ -1,3 +1,4 @@
+import { Colours } from '@/constants/colours';
 import { StyleSheet, Text, View } from 'react-native';
 
 type Props = {
@@ -25,12 +26,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   title: {
-    color: '#111827',
+    color: Colours.textPrimary,
     fontSize: 28,
     fontWeight: '700',
   },
   subtitle: {
-    color: '#6B7280',
+    color: Colours.textSecondary,
     fontSize: 14,
     marginTop: 4,
   },

@@ -1,8 +1,10 @@
 import { Activity } from '@/app/_layout';
 import InfoTag from '@/components/ui/info-tag';
+import { Colours } from '@/constants/colours';
 import { formatDate } from '@/db/utils';
+import { ListItem } from '@rneui/themed';
 import { useRouter } from 'expo-router';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 type Props = {
   activity: Activity;
@@ -20,48 +22,44 @@ export default function ActivityCard({ activity, tripId, categoryName }: Props) 
   const activitySummary = `${activity.name}, ${activity.date}, ${activity.duration} ${activity.metric}`;
 
   return (
-    <Pressable
+    <ListItem
       accessibilityLabel={`${activitySummary}, view details`}
-      accessibilityRole="button"
       onPress={openDetails}
-      style={({ pressed }) => [
-        styles.card,
-        pressed ? styles.cardPressed : null,
-      ]}
+      containerStyle={styles.card}
+      bottomDivider={false}
     >
-      <View>
-        <Text style={styles.name}>{activity.name}</Text>
-      </View>
-
-      <View style={styles.tags}>
-        <InfoTag label="Date" value={formatDate(activity.date)} />
-        <InfoTag label="Duration" value={`${activity.duration} ${activity.metric}`} />
-        {categoryName ? <InfoTag label="Category" value={categoryName} /> : null}
-      </View>
-    </Pressable>
+      <ListItem.Content>
+        <ListItem.Title style={styles.name}>{activity.name}</ListItem.Title>
+        <View style={styles.tags}>
+          <InfoTag label="Date" value={formatDate(activity.date)} />
+          <InfoTag label="Duration" value={`${activity.duration} ${activity.metric}`} />
+          {categoryName ? <InfoTag label="Category" value={categoryName} /> : null}
+        </View>
+      </ListItem.Content>
+      <ListItem.Chevron color={Colours.border} />
+    </ListItem>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#E5E7EB',
+    backgroundColor: Colours.surface,
+    borderColor: Colours.border,
     borderRadius: 14,
     borderWidth: 1,
     marginBottom: 12,
-    padding: 14,
-  },
-  cardPressed: {
-    opacity: 0.88,
+    paddingHorizontal: 14,
+    paddingVertical: 14,
   },
   name: {
-    color: '#111827',
+    color: Colours.textPrimary,
     fontSize: 18,
     fontWeight: '700',
+    marginBottom: 8,
   },
   tags: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginTop: 10,
+    marginTop: 2,
   },
 });

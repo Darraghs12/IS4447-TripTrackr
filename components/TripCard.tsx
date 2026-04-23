@@ -1,16 +1,19 @@
 import { Category, Trip } from '@/app/_layout';
 import InfoTag from '@/components/ui/info-tag';
+import { Colours } from '@/constants/colours';
 import { formatDate } from '@/db/utils';
 import { Ionicons } from '@expo/vector-icons';
+import { Badge, Card } from '@rneui/themed';
 import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 type Props = {
   trip: Trip;
   category?: Category;
+  activityCount?: number;
 };
 
-export default function TripCard({ trip, category }: Props) {
+export default function TripCard({ trip, category, activityCount }: Props) {
   const router = useRouter();
   const openDetails = () =>
     router.push({ pathname: '/trip/[id]', params: { id: trip.id.toString() } });
@@ -21,44 +24,63 @@ export default function TripCard({ trip, category }: Props) {
       accessibilityLabel={`${tripSummary}, view details`}
       accessibilityRole="button"
       onPress={openDetails}
-      style={({ pressed }) => [
-        styles.card,
-        pressed ? styles.cardPressed : null,
-      ]}
+      style={({ pressed }) => [pressed ? styles.cardPressed : null]}
     >
-      <View style={styles.header}>
-        <Text style={styles.name}>{trip.name}</Text>
-        {category ? (
-          <View style={styles.categoryBadge}>
-            <Ionicons
-              name={(category.icon ?? 'map-outline') as any}
-              size={14}
-              color={category.colour}
-            />
-            <Text style={[styles.categoryName, { color: category.colour }]}>
-              {category.name}
-            </Text>
+      <Card
+        containerStyle={styles.card}
+        wrapperStyle={styles.cardWrapper}
+      >
+        <View style={styles.header}>
+          <Card.Title style={styles.name}>{trip.name}</Card.Title>
+          <View style={styles.headerRight}>
+            {activityCount !== undefined && activityCount > 0 && (
+              <Badge
+                value={activityCount}
+                badgeStyle={{ backgroundColor: Colours.primary }}
+                textStyle={{ fontSize: 11, fontWeight: '600' }}
+                containerStyle={{ marginRight: 6 }}
+              />
+            )}
+            {category ? (
+              <View style={styles.categoryBadge}>
+                <Ionicons
+                  name={(category.icon ?? 'map-outline') as any}
+                  size={14}
+                  color={category.colour}
+                />
+                <Text style={[styles.categoryName, { color: category.colour }]}>
+                  {category.name}
+                </Text>
+              </View>
+            ) : null}
           </View>
-        ) : null}
-      </View>
+        </View>
 
-      <View style={styles.tags}>
-        <InfoTag label="Destination" value={trip.destination} />
-        <InfoTag label="From" value={formatDate(trip.startDate)} />
-        <InfoTag label="To" value={formatDate(trip.endDate)} />
-      </View>
+        <View style={styles.tags}>
+          <InfoTag label="Destination" value={trip.destination} />
+          <InfoTag label="From" value={formatDate(trip.startDate)} />
+          <InfoTag label="To" value={formatDate(trip.endDate)} />
+        </View>
+      </Card>
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#E5E7EB',
+    backgroundColor: Colours.surface,
+    borderColor: Colours.border,
     borderRadius: 14,
     borderWidth: 1,
     marginBottom: 12,
+    marginHorizontal: 0,
+    marginTop: 0,
     padding: 14,
+    shadowColor: 'transparent',
+    elevation: 0,
+  },
+  cardWrapper: {
+    padding: 0,
   },
   cardPressed: {
     opacity: 0.88,
@@ -67,12 +89,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
+    marginBottom: 0,
+  },
+  headerRight: {
+    alignItems: 'center',
+    flexDirection: 'row',
   },
   name: {
-    color: '#111827',
+    color: Colours.textPrimary,
     fontSize: 18,
     fontWeight: '700',
     flex: 1,
+    textAlign: 'left',
+    marginBottom: 0,
   },
   categoryBadge: {
     alignItems: 'center',

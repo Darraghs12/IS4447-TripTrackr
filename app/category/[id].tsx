@@ -4,6 +4,7 @@ import BackButton from '@/components/ui/back-button';
 import InfoTag from '@/components/ui/info-tag';
 import PrimaryButton from '@/components/ui/primary-button';
 import ScreenHeader from '@/components/ui/screen-header';
+import { Colours } from '@/constants/colours';
 import { StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { eq } from 'drizzle-orm';
@@ -19,7 +20,7 @@ export default function CategoryDetail() {
   if (!context) return null;
 
   const { categories, setCategories, colorScheme } = context;
-  const bgColor = colorScheme === 'dark' ? '#151718' : '#F8FAFC';
+  const bgColor = colorScheme === 'dark' ? '#151718' : Colours.background;
 
   const category = categories.find((c: Category) => c.id === Number(id));
 
@@ -61,7 +62,6 @@ export default function CategoryDetail() {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: '#F8FAFC',
     flex: 1,
     padding: 20,
   },

@@ -2,11 +2,13 @@ import BackButton from '@/components/ui/back-button';
 import FormField from '@/components/ui/form-field';
 import PrimaryButton from '@/components/ui/primary-button';
 import ScreenHeader from '@/components/ui/screen-header';
+import { Colours } from '@/constants/colours';
 import { db } from '@/db/client';
 import { targets as targetsTable } from '@/db/schema';
+import { Chip } from '@rneui/themed';
 import { useRouter } from 'expo-router';
 import { useContext, useState } from 'react';
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Category, TripContext } from './_layout';
 
@@ -19,7 +21,7 @@ export default function AddTarget() {
 
   if (!context) return null;
   const { setTargets, categories, colorScheme } = context;
-  const bgColor = colorScheme === 'dark' ? '#151718' : '#F8FAFC';
+  const bgColor = colorScheme === 'dark' ? '#151718' : Colours.background;
 
   const saveTarget = async () => {
     if (!type || !amount) return;
@@ -50,17 +52,24 @@ export default function AddTarget() {
             <Text style={styles.chipLabel}>Type</Text>
             <View style={styles.chipRow}>
               {(['weekly', 'monthly'] as const).map((t) => (
-                <Pressable
+                <Chip
                   key={t}
-                  accessibilityLabel={`Select type ${t}`}
-                  accessibilityRole="button"
+                  title={t.charAt(0).toUpperCase() + t.slice(1)}
                   onPress={() => setType(t)}
-                  style={[styles.chip, type === t && styles.chipSelected]}
-                >
-                  <Text style={[styles.chipText, type === t && styles.chipTextSelected]}>
-                    {t.charAt(0).toUpperCase() + t.slice(1)}
-                  </Text>
-                </Pressable>
+                  containerStyle={{ marginRight: 6, marginBottom: 6 }}
+                  buttonStyle={{
+                    backgroundColor: type === t ? Colours.primary : Colours.surface,
+                    borderColor: type === t ? Colours.primary : Colours.border,
+                    borderWidth: 1,
+                    borderRadius: 999,
+                  }}
+                  titleStyle={{
+                    color: type === t ? Colours.surface : Colours.textPrimary,
+                    fontSize: 14,
+                    fontWeight: '500',
+                  }}
+                  type="solid"
+                />
               ))}
             </View>
           </View>
@@ -70,40 +79,45 @@ export default function AddTarget() {
           <View style={styles.chipWrapper}>
             <Text style={styles.chipLabel}>Category (optional)</Text>
             <View style={styles.chipRow}>
-              {/* All Categories chip */}
-              <Pressable
-                accessibilityLabel="All categories"
-                accessibilityRole="button"
+              <Chip
+                title="All Categories"
                 onPress={() => setCategoryId(null)}
-                style={[
-                  styles.chip,
-                  categoryId === null && styles.chipSelected,
-                ]}
-              >
-                <Text style={[styles.chipText, categoryId === null && styles.chipTextSelected]}>
-                  All Categories
-                </Text>
-              </Pressable>
+                containerStyle={{ marginRight: 6, marginBottom: 6 }}
+                buttonStyle={{
+                  backgroundColor: categoryId === null ? Colours.primary : Colours.surface,
+                  borderColor: categoryId === null ? Colours.primary : Colours.border,
+                  borderWidth: 1,
+                  borderRadius: 999,
+                }}
+                titleStyle={{
+                  color: categoryId === null ? Colours.surface : Colours.textPrimary,
+                  fontSize: 14,
+                  fontWeight: '500',
+                }}
+                type="solid"
+              />
 
               {categories.map((cat: Category) => {
                 const isSelected = categoryId === cat.id;
                 return (
-                  <Pressable
+                  <Chip
                     key={cat.id}
-                    accessibilityLabel={`Select category ${cat.name}`}
-                    accessibilityRole="button"
+                    title={cat.name}
                     onPress={() => setCategoryId(isSelected ? null : cat.id)}
-                    style={[
-                      styles.chip,
-                      isSelected
-                        ? { backgroundColor: cat.colour, borderColor: cat.colour }
-                        : null,
-                    ]}
-                  >
-                    <Text style={[styles.chipText, isSelected && styles.chipTextSelected]}>
-                      {cat.name}
-                    </Text>
-                  </Pressable>
+                    containerStyle={{ marginRight: 6, marginBottom: 6 }}
+                    buttonStyle={{
+                      backgroundColor: isSelected ? cat.colour : Colours.surface,
+                      borderColor: isSelected ? cat.colour : Colours.border,
+                      borderWidth: 1,
+                      borderRadius: 999,
+                    }}
+                    titleStyle={{
+                      color: isSelected ? Colours.surface : Colours.textPrimary,
+                      fontSize: 14,
+                      fontWeight: '500',
+                    }}
+                    type="solid"
+                  />
                 );
               })}
             </View>
@@ -118,7 +132,6 @@ export default function AddTarget() {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: '#F8FAFC',
     flex: 1,
     padding: 20,
   },
@@ -132,7 +145,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   chipLabel: {
-    color: '#334155',
+    color: Colours.labelText,
     fontSize: 13,
     fontWeight: '600',
     marginBottom: 6,
@@ -140,26 +153,6 @@ const styles = StyleSheet.create({
   chipRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 8,
-  },
-  chip: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#94A3B8',
-    borderRadius: 999,
-    borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  chipSelected: {
-    backgroundColor: '#0F172A',
-    borderColor: '#0F172A',
-  },
-  chipText: {
-    color: '#0F172A',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  chipTextSelected: {
-    color: '#FFFFFF',
+    gap: 4,
   },
 });

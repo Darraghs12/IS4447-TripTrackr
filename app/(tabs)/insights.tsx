@@ -1,8 +1,9 @@
 import ScreenHeader from '@/components/ui/screen-header';
+import { Colours } from '@/constants/colours';
 import { calculateStreak } from '@/db/streaks';
+import { Tab } from '@rneui/themed';
 import { useContext, useState } from 'react';
 import {
-  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -22,9 +23,9 @@ export default function InsightsScreen() {
   if (!context) return null;
 
   const { trips, activities, categories, targets, colorScheme } = context;
-  const bgColor = colorScheme === 'dark' ? '#151718' : '#F8FAFC';
-  const textColor = colorScheme === 'dark' ? '#ECEDEE' : '#111827';
-  const subtitleColor = colorScheme === 'dark' ? '#9BA1A6' : '#6B7280';
+  const bgColor = colorScheme === 'dark' ? '#151718' : Colours.background;
+  const textColor = colorScheme === 'dark' ? '#ECEDEE' : Colours.textPrimary;
+  const subtitleColor = colorScheme === 'dark' ? '#9BA1A6' : Colours.textSecondary;
 
   const now = new Date();
   const todayStr = now.toISOString().split('T')[0];
@@ -83,32 +84,28 @@ export default function InsightsScreen() {
           subtitleColor={subtitleColor}
         />
 
-        <View style={styles.filterRow}>
-          {PERIODS.map((period) => {
-            const isSelected = selectedPeriod === period;
-            return (
-              <Pressable
-                key={period}
-                accessibilityLabel={`Show ${period.toLowerCase()} stats`}
-                accessibilityRole="button"
-                onPress={() => setSelectedPeriod(period)}
-                style={[
-                  styles.filterButton,
-                  isSelected && styles.filterButtonSelected,
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.filterButtonText,
-                    isSelected && styles.filterButtonTextSelected,
-                  ]}
-                >
-                  {period}
-                </Text>
-              </Pressable>
-            );
-          })}
-        </View>
+        <Tab
+          value={PERIODS.indexOf(selectedPeriod)}
+          onChange={(index) => setSelectedPeriod(PERIODS[index])}
+          indicatorStyle={{ backgroundColor: Colours.primary, height: 2 }}
+          containerStyle={styles.tabContainer}
+        >
+          {PERIODS.map((period) => (
+            <Tab.Item
+              key={period}
+              title={period}
+              titleStyle={(active) => ({
+                fontSize: 14,
+                fontWeight: active ? '600' : '400',
+                color: active ? Colours.primary : Colours.textSecondary,
+              })}
+              buttonStyle={{
+                backgroundColor: 'transparent',
+                paddingVertical: 10,
+              }}
+            />
+          ))}
+        </Tab>
 
         <View style={styles.streakCard}>
           {streak === 0 ? (
@@ -168,7 +165,7 @@ export default function InsightsScreen() {
               data={pieData}
               radius={100}
               showText
-              textColor="#FFFFFF"
+              textColor={Colours.surface}
               textSize={11}
               fontWeight="600"
               labelsPosition="outward"
@@ -190,7 +187,6 @@ export default function InsightsScreen() {
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: '#F8FAFC',
     flex: 1,
     paddingHorizontal: 18,
     paddingTop: 10,
@@ -198,53 +194,33 @@ const styles = StyleSheet.create({
   content: {
     paddingBottom: 24,
   },
-  filterRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
+  tabContainer: {
+    backgroundColor: Colours.surface,
+    borderBottomColor: Colours.border,
+    borderBottomWidth: 1,
     marginBottom: 16,
-  },
-  filterButton: {
-    backgroundColor: '#FFFFFF',
-    borderColor: '#94A3B8',
-    borderRadius: 999,
-    borderWidth: 1,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-  },
-  filterButtonSelected: {
-    backgroundColor: '#0F172A',
-    borderColor: '#0F172A',
-  },
-  filterButtonText: {
-    color: '#0F172A',
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  filterButtonTextSelected: {
-    color: '#FFFFFF',
   },
   streakCard: {
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderColor: '#E5E7EB',
+    backgroundColor: Colours.surface,
+    borderColor: Colours.border,
     borderRadius: 14,
     borderWidth: 1,
     marginBottom: 16,
     padding: 14,
   },
   streakNumber: {
-    color: '#0F766E',
+    color: Colours.primary,
     fontSize: 36,
     fontWeight: '700',
   },
   streakLabel: {
-    color: '#6B7280',
+    color: Colours.textSecondary,
     fontSize: 14,
     marginTop: 4,
   },
   streakEmpty: {
-    color: '#6B7280',
+    color: Colours.textSecondary,
     fontSize: 14,
   },
   statsRow: {
@@ -254,33 +230,32 @@ const styles = StyleSheet.create({
   },
   statCard: {
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderColor: '#E5E7EB',
+    backgroundColor: Colours.surface,
+    borderColor: Colours.border,
     borderRadius: 14,
     borderWidth: 1,
     flex: 1,
     padding: 14,
   },
   statNumber: {
-    color: '#111827',
+    color: Colours.textPrimary,
     fontSize: 32,
     fontWeight: '700',
   },
   statLabel: {
-    color: '#6B7280',
+    color: Colours.textSecondary,
     fontSize: 12,
     marginTop: 4,
   },
   sectionTitle: {
-    color: '#111827',
     fontSize: 18,
     fontWeight: '700',
     marginBottom: 12,
   },
   chartCard: {
     alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-    borderColor: '#E5E7EB',
+    backgroundColor: Colours.surface,
+    borderColor: Colours.border,
     borderRadius: 14,
     borderWidth: 1,
     marginBottom: 24,
@@ -289,11 +264,10 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
   },
   axisLabel: {
-    color: '#6B7280',
+    color: Colours.textSecondary,
     fontSize: 10,
   },
   emptyText: {
-    color: '#475569',
     fontSize: 16,
     marginBottom: 24,
     paddingTop: 8,
@@ -317,7 +291,7 @@ const styles = StyleSheet.create({
     width: 10,
   },
   legendLabel: {
-    color: '#374151',
+    color: Colours.labelText,
     fontSize: 12,
   },
 });
