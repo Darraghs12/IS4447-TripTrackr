@@ -9,9 +9,9 @@
 
 **GitHub Repository:** https://github.com/Darraghs12/IS4447-TripTrackr
 
-**Expo Link:** [INSERT EXPO LINK HERE]
+**Expo Link:** exp://u.expo.dev/2d78bbc7-f1d4-4fdb-8912-5589ca23c687/group/ef0e3b77-cc96-4bf5-bdf8-682d20f3dc38 
 
-**Expo QR Code:** [INSERT QR CODE OR LINK HERE]
+**Expo QR Code:** (https://expo.dev/preview/update?message=submission&updateRuntimeVersion=1.0.0&createdAt=2026-04-23T20%3A08%3A23.915Z&slug=exp&projectId=2d78bbc7-f1d4-4fdb-8912-5589ca23c687&group=ef0e3b77 -cc96-4bf5-bdf8-682d20f3dc38 )
 
 ---
 
