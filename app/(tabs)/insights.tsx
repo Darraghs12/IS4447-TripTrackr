@@ -2,7 +2,6 @@ import ScreenHeader from '@/components/ui/screen-header';
 import { calculateStreak } from '@/db/streaks';
 import { useContext, useState } from 'react';
 import {
-  Dimensions,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -10,10 +9,8 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { VictoryAxis, VictoryBar, VictoryChart, VictoryPie } from 'victory-native';
+import { BarChart, PieChart } from 'react-native-gifted-charts';
 import { Activity, Category, Trip, TripContext } from '../_layout';
-
-const SCREEN_WIDTH = Dimensions.get('window').width;
 
 type Period = 'Daily' | 'Weekly' | 'Monthly';
 const PERIODS: Period[] = ['Daily', 'Weekly', 'Monthly'];
@@ -55,24 +52,23 @@ export default function InsightsScreen() {
   );
 
   const barData = categories.map((c: Category) => ({
-    x: c.name,
-    y: periodActivities.filter((a: Activity) => a.categoryId === c.id).length,
+    value: periodActivities.filter((a: Activity) => a.categoryId === c.id).length,
+    label: c.name,
+    frontColor: c.colour,
   }));
 
   const pieData = categories
     .map((c: Category) => ({
-      x: c.name,
-      y: periodActivities
+      value: periodActivities
         .filter((a: Activity) => a.categoryId === c.id)
         .reduce((sum: number, a: Activity) => sum + a.duration, 0),
+      color: c.colour,
+      text: c.name.length > 8 ? c.name.slice(0, 7) + '.' : c.name,
+      fullName: c.name,
     }))
-    .filter((d) => d.y > 0);
+    .filter((d) => d.value > 0);
 
-  const pieColours = categories
-    .filter((c: Category) =>
-      periodActivities.some((a: Activity) => a.categoryId === c.id)
-    )
-    .map((c: Category) => c.colour);
+  const barEmpty = barData.every((d) => d.value === 0);
 
   return (
     <SafeAreaView style={[styles.safeArea, { backgroundColor: bgColor }]}>
@@ -142,35 +138,23 @@ export default function InsightsScreen() {
 
         <Text style={[styles.sectionTitle, { color: textColor }]}>Activities by Category</Text>
 
-        {barData.every((d) => d.y === 0) ? (
+        {barEmpty ? (
           <Text style={[styles.emptyText, { color: subtitleColor }]}>No data yet</Text>
         ) : (
           <View style={styles.chartCard}>
-            <VictoryChart
-              width={SCREEN_WIDTH - 56}
-              height={220}
-              domainPadding={{ x: 20 }}
-            >
-              <VictoryAxis
-                style={{
-                  axis: { stroke: '#E5E7EB' },
-                  grid: { stroke: 'transparent' },
-                  tickLabels: { angle: -20, fill: '#6B7280', fontSize: 10 },
-                }}
-              />
-              <VictoryAxis
-                dependentAxis
-                style={{
-                  axis: { stroke: '#E5E7EB' },
-                  grid: { stroke: '#F3F4F6' },
-                  tickLabels: { fill: '#6B7280', fontSize: 10 },
-                }}
-              />
-              <VictoryBar
-                data={barData}
-                style={{ data: { fill: '#0F766E' } }}
-              />
-            </VictoryChart>
+            <BarChart
+              data={barData}
+              barWidth={50}
+              spacing={16}
+              barBorderRadius={6}
+              showGradient={false}
+              noOfSections={4}
+              yAxisTextStyle={styles.axisLabel}
+              xAxisLabelTextStyle={styles.axisLabel}
+              hideRules
+              hideYAxisText={false}
+              isAnimated={false}
+            />
           </View>
         )}
 
@@ -180,21 +164,23 @@ export default function InsightsScreen() {
           <Text style={[styles.emptyText, { color: subtitleColor }]}>No data yet</Text>
         ) : (
           <View style={styles.chartCard}>
-            <VictoryPie
+            <PieChart
               data={pieData}
-              width={SCREEN_WIDTH - 56}
-              height={240}
-              colorScale={
-                pieColours.length > 0
-                  ? pieColours
-                  : ['#0F766E', '#1D4ED8', '#7C3AED', '#B45309']
-              }
-              innerRadius={40}
-              padAngle={2}
-              style={{
-                labels: { fill: '#374151', fontSize: 11, fontWeight: '600' },
-              }}
+              radius={100}
+              showText
+              textColor="#FFFFFF"
+              textSize={11}
+              fontWeight="600"
+              labelsPosition="outward"
             />
+            <View style={styles.legend}>
+              {pieData.map((d) => (
+                <View key={d.fullName} style={styles.legendRow}>
+                  <View style={[styles.legendDot, { backgroundColor: d.color }]} />
+                  <Text style={styles.legendLabel}>{d.fullName}</Text>
+                </View>
+              ))}
+            </View>
           </View>
         )}
       </ScrollView>
@@ -299,7 +285,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 24,
     overflow: 'hidden',
-    paddingVertical: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 16,
+  },
+  axisLabel: {
+    color: '#6B7280',
+    fontSize: 10,
   },
   emptyText: {
     color: '#475569',
@@ -307,5 +298,26 @@ const styles = StyleSheet.create({
     marginBottom: 24,
     paddingTop: 8,
     textAlign: 'center',
+  },
+  legend: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+    justifyContent: 'center',
+    marginTop: 16,
+  },
+  legendRow: {
+    alignItems: 'center',
+    flexDirection: 'row',
+    gap: 6,
+  },
+  legendDot: {
+    borderRadius: 5,
+    height: 10,
+    width: 10,
+  },
+  legendLabel: {
+    color: '#374151',
+    fontSize: 12,
   },
 });

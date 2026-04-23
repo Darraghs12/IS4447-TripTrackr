@@ -4,7 +4,8 @@ import { db, sqlite } from './client';
 import { activities, categories, targets, trips } from './schema';
 
 // Bump this number whenever seed data changes — forces a fresh reseed on next launch.
-const SEED_VERSION = '5';
+// Clear app data on device to trigger fresh seed (Settings → Apps → TripTrackr → Clear Data).
+const SEED_VERSION = '7';
 const SEED_VERSION_KEY = 'triptrackr_seed_version';
 
 export async function seedIfEmpty() {
@@ -24,10 +25,10 @@ export async function seedIfEmpty() {
   `);
 
   await db.insert(categories).values([
-    { name: 'Outdoor', colour: '#0F766E', icon: 'walk-outline' },
+    { name: 'Outdoor', colour: '#059669', icon: 'walk-outline' },
     { name: 'Culture', colour: '#1D4ED8', icon: 'camera-outline' },
     { name: 'Sightseeing', colour: '#7C3AED', icon: 'map-outline' },
-    { name: 'Food', colour: '#B45309', icon: 'restaurant-outline' },
+    { name: 'Food', colour: '#D97706', icon: 'restaurant-outline' },
   ]);
 
   await db.insert(trips).values([
@@ -136,6 +137,16 @@ export async function seedIfEmpty() {
       categoryId: 1,
       notes: 'Trail 1, full loop',
     },
+    // Barcelona Food Tour — Outdoor activity on Apr 14 (trip start)
+    {
+      tripId: 4,
+      name: 'Barceloneta Beach Walk',
+      date: '2026-04-14',
+      duration: 90,
+      metric: 'minutes',
+      categoryId: 1,
+      notes: 'Morning walk along the seafront',
+    },
     // Barcelona Food Tour — streak days (Apr 20–21)
     {
       tripId: 4,
@@ -164,7 +175,7 @@ export async function seedIfEmpty() {
       categoryId: 2,
       notes: 'Booked tickets in advance',
     },
-    // Lisbon Weekend (tripId 6) — fills streak gap Apr 15–16
+    // Lisbon Weekend (tripId 6) — fills streak gap Apr 15–17
     {
       tripId: 6,
       name: 'Belem Tower',
@@ -182,6 +193,15 @@ export async function seedIfEmpty() {
       metric: 'minutes',
       categoryId: 4,
       notes: 'Best custard tarts in Lisbon',
+    },
+    {
+      tripId: 6,
+      name: 'Sintra Hiking Trail',
+      date: '2026-04-17',
+      duration: 150,
+      metric: 'minutes',
+      categoryId: 1,
+      notes: 'Trails through the Sintra hills',
     },
     // Dublin City Break (tripId 7) — Apr 19–20
     {
@@ -203,6 +223,15 @@ export async function seedIfEmpty() {
       notes: 'Tour and rooftop bar',
     },
     // Paris Day Trip (tripId 8) — today Apr 22, populates Daily view + extends streak
+    {
+      tripId: 8,
+      name: 'Luxembourg Gardens Walk',
+      date: '2026-04-22',
+      duration: 75,
+      metric: 'minutes',
+      categoryId: 1,
+      notes: 'Morning stroll through the gardens',
+    },
     {
       tripId: 8,
       name: 'Eiffel Tower',
