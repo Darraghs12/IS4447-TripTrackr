@@ -1,50 +1,61 @@
-# Welcome to your Expo app 👋
+# TripTrackr
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**IS4447 Mobile Application Development — Option B: Holiday/Trip Planner**  
+**Student Number:** 122305986
 
-## Get started
+---
 
-1. Install dependencies
+## Links
 
-   ```bash
-   npm install
-   ```
+**GitHub Repository:** https://github.com/Darraghs12/IS4447-TripTrackr
 
-2. Start the app
+**Expo Link:** [INSERT EXPO LINK HERE]
 
-   ```bash
-   npx expo start
-   ```
+**Expo QR Code:** [INSERT QR CODE OR LINK HERE]
 
-In the output, you'll find options to open the app in a
+---
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## App Overview
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+TripTrackr is a mobile app that allows users to plan and track holidays and trips. Users can create trips, log activities within each trip, organise them using categories, set weekly and monthly targets, and view insights and charts summarising their travel activity.
 
-## Get a fresh project
+---
 
-When you're ready, run:
+## Setup Instructions
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Scan the QR code with Expo Go on iOS or Android.
 
-## Learn more
+---
 
-To learn more about developing your project with Expo, look at the following resources:
+## Features
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+- Add, edit, and delete trips and activities
+- Categories with colour and icon
+- Weekly and monthly targets with progress tracking
+- Insights screen with bar and pie charts
+- Search and filter trips by text, date range, and category
+- Light and dark mode with local persistence
+- Weather and map for trip destination via Open-Meteo and OpenStreetMap
+- Local notifications for trip reminders
+- Streak tracking for consecutive days of activity
+- CSV export of activity data
+- Login, register, logout, and delete account
 
-## Join the community
+---
 
-Join our community of developers creating universal apps.
+## Tech Stack
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- React Native + Expo (expo-router)
+- Drizzle ORM + SQLite (expo-sqlite)
+- TypeScript
+- react-native-gifted-charts
+- bcryptjs + expo-crypto
+- AsyncStorage
+- expo-notifications
+- expo-sharing + expo-file-system
+- react-native-webview (Leaflet.js map)
